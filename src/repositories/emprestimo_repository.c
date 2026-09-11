@@ -117,7 +117,7 @@ static int usuario_pode_emprestar(PGconn *conn, int usuario_id, char *motivo, in
 
     return 1;
 }
-int emprestimo_repository_realizar_emprestimo(PGconn *conn, int usuario_id, const char *codigo_barras, int *emprestimo_id, int *exemplar_id, char *motivo, int motivo_size) {
+int emprestimo_repository_realizar_emprestimo(PGconn *conn, int usuario_id, const char *codigo_barras, const char *origem, int *emprestimo_id, int *exemplar_id, char *motivo, int motivo_size) {
     char usuario_id_text[16];
     const char *params_codigo[1];
     const char *params_insert[2];
@@ -177,7 +177,7 @@ int emprestimo_repository_realizar_emprestimo(PGconn *conn, int usuario_id, cons
     PQclear(result);
 
     params_insert[0] = usuario_id_text;
-    params_insert[1] = "SELF_CHECKOUT";
+    params_insert[1] = origem != NULL && origem[0] != '\0' ? origem : "BALCAO";
     result = exec_params(conn,
         "INSERT INTO emprestimo (id_usuario, data_prevista_devolucao, status, origem) "
         "VALUES ($1::integer, CURRENT_DATE + INTERVAL '7 days', 'ABERTO', $2) RETURNING id_emprestimo",
@@ -454,6 +454,7 @@ PGresult *emprestimo_repository_listar_emprestimos_abertos(PGconn *conn) {
         "ORDER BY e.id_emprestimo, i.id_emprestimo_item",
         0, NULL);
 }
+
 
 
 

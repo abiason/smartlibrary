@@ -4,7 +4,7 @@ Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com Postg
 
 ## Escopo Atual
 
-Esta entrega implementa as Fases 1 a 7 da especificacao:
+Esta entrega implementa as Fases 1 a 8 da especificacao:
 
 - estrutura inicial do projeto;
 - configuracao por variaveis de ambiente;
@@ -23,9 +23,10 @@ Esta entrega implementa as Fases 1 a 7 da especificacao:
 - reservas com criacao, cancelamento, atendimento, expiracao e listagem;
 - Self Checkout com identificacao por CPF, emprestimo, devolucao, renovacao, consultas e pesquisa;
 - eventos MongoDB por origem apos operacoes confirmadas;
-- logs operacionais, auditoria e consultas NoSQL pela aplicacao.
+- logs operacionais, auditoria e consultas NoSQL pela aplicacao;
+- relatorios operacionais de acervo, atrasos, ranking de livros, origens de emprestimo, reservas e pendencias.
 
-Relatorios, testes ampliados e documentacao final pertencem a fases futuras.
+Testes ampliados e documentacao final pertencem a fases futuras.
 
 ## Dependencias
 
@@ -94,12 +95,14 @@ smartlibrary/
 |   |   |-- cadastro_repository.c / cadastro_repository.h
 |   |   |-- emprestimo_repository.c / emprestimo_repository.h
 |   |   |-- reserva_repository.c / reserva_repository.h
-|   |   `-- self_checkout_repository.c / self_checkout_repository.h
+|   |   |-- self_checkout_repository.c / self_checkout_repository.h
+|   |   `-- relatorio_repository.c / relatorio_repository.h
 |   |-- services/
 |   |   |-- cadastro_service.c / cadastro_service.h
 |   |   |-- emprestimo_service.c / emprestimo_service.h
 |   |   |-- reserva_service.c / reserva_service.h
-|   |   `-- self_checkout_service.c / self_checkout_service.h
+|   |   |-- self_checkout_service.c / self_checkout_service.h
+|   |   `-- relatorio_service.c / relatorio_service.h
 |   |-- events/
 |   |   `-- event_service.c / event_service.h
 |   |-- ui/
@@ -108,7 +111,8 @@ smartlibrary/
 |   |   |-- emprestimo_ui.c / emprestimo_ui.h
 |   |   |-- reserva_ui.c / reserva_ui.h
 |   |   |-- self_checkout_ui.c / self_checkout_ui.h
-|   |   `-- nosql_ui.c / nosql_ui.h
+|   |   |-- nosql_ui.c / nosql_ui.h
+|   |   `-- relatorio_ui.c / relatorio_ui.h
 |   |-- utils/
 |   `-- models/
 |-- database/
@@ -123,6 +127,7 @@ smartlibrary/
 |   |-- emprestimos.md
 |   |-- reservas.md
 |   |-- self_checkout.md
+|   |-- relatorios.md
 |   `-- diagrams/
 |-- .env.example
 |-- .gitignore

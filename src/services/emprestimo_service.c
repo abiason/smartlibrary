@@ -61,7 +61,7 @@ int emprestimo_service_realizar_emprestimo_origem(PostgresConnection *postgres, 
         return 0;
     }
 
-    if (!emprestimo_repository_realizar_emprestimo(postgres->conn, usuario_id, codigo_barras, &emprestimo_id, &exemplar_id, motivo, sizeof(motivo))) {
+    if (!emprestimo_repository_realizar_emprestimo(postgres->conn, usuario_id, codigo_barras, origem, &emprestimo_id, &exemplar_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
         event_service_registrar_origem(mongo, "EMPRESTIMO_NEGADO", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
         event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", motivo);
@@ -148,3 +148,4 @@ void emprestimo_service_listar_abertos(PostgresConnection *postgres) {
         print_rows(emprestimo_repository_listar_emprestimos_abertos(postgres->conn));
     }
 }
+

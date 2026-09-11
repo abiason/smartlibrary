@@ -135,6 +135,7 @@ mingw32-make run
 - [Arquitetura](docs/arquitetura.md)
 - [Guia de execucao](docs/guia_execucao.md)
 - [Entrega final](docs/entrega_final.md)
+- [Especificacao V4 - evolucao planejada](docs/especificacao_v4.md)
 - [Especificacao V3](docs/especificacao_v3.md)
 - [Especificacao V2](docs/especificacao_v2.md)
 - [Resumo das fases](docs/fases.md)
@@ -175,6 +176,7 @@ smartlibrary/
 |   |-- arquitetura.md
 |   |-- guia_execucao.md
 |   |-- entrega_final.md
+|   |-- especificacao_v4.md
 |   |-- especificacao_v3.md
 |   |-- especificacao_v2.md
 |   |-- modelo_relacional.md

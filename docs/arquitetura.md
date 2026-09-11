@@ -11,7 +11,7 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - Config: leitura de configuracoes do ambiente.
 - Events: registro de eventos, logs e auditoria no MongoDB.
 
-## Decisoes Das Fases 1, 2 E 3
+## Decisoes Das Fases 1, 2, 3 E 4
 
 - PostgreSQL e a fonte principal da verdade transacional.
 - MongoDB fica reservado para eventos, logs, auditoria e telemetria.
@@ -19,7 +19,8 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - As conexoes sao abertas na inicializacao e encerradas antes do fim do processo.
 - O schema relacional, o modelo documental, o MER e o dicionario de dados foram criados em conjunto.
 - A Fase 3 adiciona UI administrativa, services e repositories para cadastros basicos.
-- Nenhuma regra de emprestimo, reserva, Self Checkout completo ou relatorio foi implementada nesta fase.
+- A Fase 4 adiciona emprestimos, devolucoes e renovacoes transacionais.
+- Nenhuma regra completa de reserva, Self Checkout completo ou relatorio foi implementada nesta fase.
 
 ## Diagramas
 
@@ -28,3 +29,9 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - [C4 Componentes](diagrams/c4_componentes.md)
 - [MER](diagrams/modelo_er.md)
 - [Arquitetura Geral](diagrams/arquitetura_geral.md)
+- [Fluxo de Emprestimo](diagrams/fluxo_emprestimo.md)
+- [Fluxo de Devolucao](diagrams/fluxo_devolucao.md)
+- [Fluxo de Renovacao](diagrams/fluxo_renovacao.md)
+- [Sequencia de Emprestimo](diagrams/sequencia_emprestimo.md)
+- [Sequencia de Devolucao](diagrams/sequencia_devolucao.md)
+- [Sequencia de Renovacao](diagrams/sequencia_renovacao.md)

@@ -1,7 +1,7 @@
 #include "config/config.h"
 #include "database/mongodb.h"
 #include "database/postgres.h"
-#include "ui/cadastro_ui.h"
+#include "ui/main_ui.h"
 
 #include <stdio.h>
 
@@ -42,7 +42,7 @@ int main(void) {
     printf("[OK] MongoDB conectado.\n");
 
     printf("[INFO] Sistema inicializado com sucesso.\n");
-    cadastro_ui_run(&postgres);
+    main_ui_run(&postgres, &mongo);
 
 cleanup:
     printf("[INFO] Encerrando conexoes...\n");
@@ -58,5 +58,6 @@ cleanup:
 
     return exit_code;
 }
+
 
 

@@ -49,69 +49,98 @@ static void print_rows(PGresult *result) {
     PQclear(result);
 }
 
-int emprestimo_service_realizar_emprestimo(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, const char *codigo_barras) {
+int emprestimo_service_realizar_emprestimo_origem(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, const char *codigo_barras, const char *origem) {
     int emprestimo_id = 0;
     int exemplar_id = 0;
     char motivo[256];
+    char entidade_id[32];
 
     if (!has_postgres(postgres) || usuario_id <= 0 || !has_text(codigo_barras)) {
         fprintf(stderr, "[ERRO] Informe usuario e codigo de barras validos.\n");
+        event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", "Tentativa de emprestimo com dados invalidos.");
         return 0;
     }
 
     if (!emprestimo_repository_realizar_emprestimo(postgres->conn, usuario_id, codigo_barras, &emprestimo_id, &exemplar_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
-        event_service_registrar(mongo, "EMPRESTIMO_NEGADO", usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+        event_service_registrar_origem(mongo, "EMPRESTIMO_NEGADO", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+        event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", motivo);
         return 0;
     }
 
-    event_service_registrar(mongo, "EMPRESTIMO_REALIZADO", usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+    snprintf(entidade_id, sizeof(entidade_id), "%d", emprestimo_id);
+    event_service_registrar_origem(mongo, "EMPRESTIMO_REALIZADO", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+    event_service_registrar_auditoria(mongo, "emprestimo", entidade_id, "CRIACAO", usuario_id, "", "status=ABERTO");
     printf("[OK] %s ID do emprestimo: %d\n", motivo, emprestimo_id);
     return 1;
 }
 
-int emprestimo_service_realizar_devolucao(PostgresConnection *postgres, MongoConnection *mongo, const char *codigo_barras) {
+int emprestimo_service_realizar_emprestimo(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, const char *codigo_barras) {
+    return emprestimo_service_realizar_emprestimo_origem(postgres, mongo, usuario_id, codigo_barras, "BALCAO");
+}
+
+int emprestimo_service_realizar_devolucao_origem(PostgresConnection *postgres, MongoConnection *mongo, const char *codigo_barras, const char *origem) {
     int usuario_id = 0;
     int emprestimo_id = 0;
     int exemplar_id = 0;
     char motivo[256];
+    char entidade_id[32];
 
     if (!has_postgres(postgres) || !has_text(codigo_barras)) {
         fprintf(stderr, "[ERRO] Informe codigo de barras valido.\n");
+        event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", "Tentativa de devolucao com codigo invalido.");
         return 0;
     }
 
     if (!emprestimo_repository_realizar_devolucao(postgres->conn, codigo_barras, &usuario_id, &emprestimo_id, &exemplar_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
-        event_service_registrar(mongo, "DEVOLUCAO_NEGADA", usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+        event_service_registrar_origem(mongo, "DEVOLUCAO_NEGADA", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+        event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", motivo);
         return 0;
     }
 
-    event_service_registrar(mongo, "DEVOLUCAO_REALIZADA", usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+    snprintf(entidade_id, sizeof(entidade_id), "%d", emprestimo_id);
+    event_service_registrar_origem(mongo, "DEVOLUCAO_REALIZADA", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+    event_service_registrar_auditoria(mongo, "emprestimo", entidade_id, "ALTERACAO", usuario_id, "status=ABERTO", "item devolvido");
     printf("[OK] %s\n", motivo);
     return 1;
 }
-int emprestimo_service_renovar_item(PostgresConnection *postgres, MongoConnection *mongo, int emprestimo_item_id) {
+
+int emprestimo_service_realizar_devolucao(PostgresConnection *postgres, MongoConnection *mongo, const char *codigo_barras) {
+    return emprestimo_service_realizar_devolucao_origem(postgres, mongo, codigo_barras, "BALCAO");
+}
+
+int emprestimo_service_renovar_item_origem(PostgresConnection *postgres, MongoConnection *mongo, int emprestimo_item_id, const char *origem) {
     int usuario_id = 0;
     int emprestimo_id = 0;
     int exemplar_id = 0;
     char codigo_barras[51];
     char motivo[256];
+    char entidade_id[32];
 
+    codigo_barras[0] = '\0';
     if (!has_postgres(postgres) || emprestimo_item_id <= 0) {
         fprintf(stderr, "[ERRO] Informe item de emprestimo valido.\n");
+        event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", "Tentativa de renovacao com item invalido.");
         return 0;
     }
 
     if (!emprestimo_repository_renovar_item(postgres->conn, emprestimo_item_id, &usuario_id, &emprestimo_id, &exemplar_id, codigo_barras, sizeof(codigo_barras), motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
-        event_service_registrar(mongo, "RENOVACAO_NEGADA", usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+        event_service_registrar_origem(mongo, "RENOVACAO_NEGADA", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+        event_service_registrar_log(mongo, "WARN", "emprestimo_service", "", motivo);
         return 0;
     }
 
-    event_service_registrar(mongo, "RENOVACAO_REALIZADA", usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+    snprintf(entidade_id, sizeof(entidade_id), "%d", emprestimo_item_id);
+    event_service_registrar_origem(mongo, "RENOVACAO_REALIZADA", origem, usuario_id, emprestimo_id, exemplar_id, codigo_barras);
+    event_service_registrar_auditoria(mongo, "emprestimo_item", entidade_id, "ALTERACAO", usuario_id, "renovacao anterior", "renovacao incrementada");
     printf("[OK] %s\n", motivo);
     return 1;
+}
+
+int emprestimo_service_renovar_item(PostgresConnection *postgres, MongoConnection *mongo, int emprestimo_item_id) {
+    return emprestimo_service_renovar_item_origem(postgres, mongo, emprestimo_item_id, "BALCAO");
 }
 
 void emprestimo_service_listar_abertos(PostgresConnection *postgres) {

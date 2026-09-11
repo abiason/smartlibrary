@@ -1,6 +1,7 @@
 #include "config/config.h"
 #include "database/mongodb.h"
 #include "database/postgres.h"
+#include "events/event_service.h"
 #include "ui/main_ui.h"
 
 #include <stdio.h>
@@ -42,9 +43,11 @@ int main(void) {
     printf("[OK] MongoDB conectado.\n");
 
     printf("[INFO] Sistema inicializado com sucesso.\n");
+    event_service_registrar_log(&mongo, "INFO", "main", "", "Sistema inicializado com sucesso.");
     main_ui_run(&postgres, &mongo);
 
 cleanup:
+    event_service_registrar_log(&mongo, "INFO", "main", "", "Sistema em encerramento.");
     printf("[INFO] Encerrando conexoes...\n");
     mongodb_disconnect(&mongo);
     postgres_disconnect(&postgres);
@@ -58,6 +61,3 @@ cleanup:
 
     return exit_code;
 }
-
-
-

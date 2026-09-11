@@ -55,16 +55,18 @@ int self_checkout_service_identificar_usuario(PostgresConnection *postgres, Mong
 
     if (!has_postgres(postgres) || !has_text(cpf) || usuario_id == NULL) {
         fprintf(stderr, "[ERRO] CPF invalido.\n");
+        event_service_registrar_log(mongo, "WARN", "self_checkout_service", "SELF-DEFAULT", "CPF invalido no self checkout.");
         return 0;
     }
 
     if (!self_checkout_repository_identificar_usuario(postgres->conn, cpf, usuario_id, nome, nome_size, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
-        event_service_registrar(mongo, "USUARIO_BLOQUEADO", 0, 0, 0, "");
+        event_service_registrar_origem(mongo, "USUARIO_BLOQUEADO", "SELF_CHECKOUT", 0, 0, 0, "");
+        event_service_registrar_log(mongo, "WARN", "self_checkout_service", "SELF-DEFAULT", motivo);
         return 0;
     }
 
-    event_service_registrar(mongo, "USUARIO_IDENTIFICADO", *usuario_id, 0, 0, "");
+    event_service_registrar_origem(mongo, "USUARIO_IDENTIFICADO", "SELF_CHECKOUT", *usuario_id, 0, 0, "");
     printf("[OK] %s Bem-vindo, %s.\n", motivo, nome);
     return 1;
 }
@@ -88,20 +90,19 @@ void self_checkout_service_pesquisar_livros(PostgresConnection *postgres, const 
 }
 
 int self_checkout_service_realizar_emprestimo(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, const char *codigo_barras) {
-    return emprestimo_service_realizar_emprestimo(postgres, mongo, usuario_id, codigo_barras);
+    return emprestimo_service_realizar_emprestimo_origem(postgres, mongo, usuario_id, codigo_barras, "SELF_CHECKOUT");
 }
 
 int self_checkout_service_realizar_devolucao(PostgresConnection *postgres, MongoConnection *mongo, const char *codigo_barras) {
-    return emprestimo_service_realizar_devolucao(postgres, mongo, codigo_barras);
+    return emprestimo_service_realizar_devolucao_origem(postgres, mongo, codigo_barras, "SELF_CHECKOUT");
 }
 
 int self_checkout_service_renovar_item(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, int emprestimo_item_id) {
     if (!has_postgres(postgres) || !self_checkout_repository_item_pertence_usuario(postgres->conn, usuario_id, emprestimo_item_id)) {
         printf("[ERRO] Item de emprestimo nao pertence ao usuario identificado.\n");
+        event_service_registrar_log(mongo, "WARN", "self_checkout_service", "SELF-DEFAULT", "Renovacao negada: item nao pertence ao usuario identificado.");
         return 0;
     }
 
-    return emprestimo_service_renovar_item(postgres, mongo, emprestimo_item_id);
+    return emprestimo_service_renovar_item_origem(postgres, mongo, emprestimo_item_id, "SELF_CHECKOUT");
 }
-
-

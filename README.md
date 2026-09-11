@@ -4,7 +4,7 @@ Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com Postg
 
 ## Escopo Atual
 
-Esta entrega implementa as Fases 1 a 6 da especificacao:
+Esta entrega implementa as Fases 1 a 7 da especificacao:
 
 - estrutura inicial do projeto;
 - configuracao por variaveis de ambiente;
@@ -22,9 +22,10 @@ Esta entrega implementa as Fases 1 a 6 da especificacao:
 - bloqueio de exemplar com `SELECT ... FOR UPDATE`;
 - reservas com criacao, cancelamento, atendimento, expiracao e listagem;
 - Self Checkout com identificacao por CPF, emprestimo, devolucao, renovacao, consultas e pesquisa;
-- eventos MongoDB basicos apos operacoes confirmadas.
+- eventos MongoDB por origem apos operacoes confirmadas;
+- logs operacionais, auditoria e consultas NoSQL pela aplicacao.
 
-NoSQL avancado, relatorios, testes ampliados e documentacao final pertencem a fases futuras.
+Relatorios, testes ampliados e documentacao final pertencem a fases futuras.
 
 ## Dependencias
 
@@ -100,12 +101,14 @@ smartlibrary/
 |   |   |-- reserva_service.c / reserva_service.h
 |   |   `-- self_checkout_service.c / self_checkout_service.h
 |   |-- events/
+|   |   `-- event_service.c / event_service.h
 |   |-- ui/
 |   |   |-- main_ui.c / main_ui.h
 |   |   |-- cadastro_ui.c / cadastro_ui.h
 |   |   |-- emprestimo_ui.c / emprestimo_ui.h
 |   |   |-- reserva_ui.c / reserva_ui.h
-|   |   `-- self_checkout_ui.c / self_checkout_ui.h
+|   |   |-- self_checkout_ui.c / self_checkout_ui.h
+|   |   `-- nosql_ui.c / nosql_ui.h
 |   |-- utils/
 |   `-- models/
 |-- database/

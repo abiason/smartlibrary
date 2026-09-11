@@ -56,11 +56,11 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
     int option = -1;
 
     print_header();
-    event_service_registrar(mongo, "SELF_CHECKOUT_INICIADO", 0, 0, 0, "");
+    event_service_registrar_origem(mongo, "SELF_CHECKOUT_INICIADO", "SELF_CHECKOUT", 0, 0, 0, "");
     input_read_line("CPF: ", cpf, sizeof(cpf));
 
     if (!self_checkout_service_identificar_usuario(postgres, mongo, cpf, &usuario_id, nome, sizeof(nome))) {
-        event_service_registrar(mongo, "SELF_CHECKOUT_FINALIZADO", 0, 0, 0, "");
+        event_service_registrar_origem(mongo, "SELF_CHECKOUT_FINALIZADO", "SELF_CHECKOUT", 0, 0, 0, "");
         return;
     }
 
@@ -99,5 +99,6 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
         }
     }
 
-    event_service_registrar(mongo, "SELF_CHECKOUT_FINALIZADO", usuario_id, 0, 0, "");
+    event_service_registrar_origem(mongo, "SELF_CHECKOUT_FINALIZADO", "SELF_CHECKOUT", usuario_id, 0, 0, "");
 }
+

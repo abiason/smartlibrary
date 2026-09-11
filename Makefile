@@ -13,7 +13,7 @@ CFLAGS := -std=c17 -Wall -Wextra -Wpedantic
 CPPFLAGS := -Isrc -D__USE_MINGW_ANSI_STDIO=1 $(shell $(PKG_CONFIG) --cflags libpq mongoc2)
 LDLIBS := $(shell $(PKG_CONFIG) --libs libpq mongoc2)
 
-.PHONY: all clean run check-deps
+.PHONY: all clean run test check-deps
 
 all: check-deps $(TARGET)
 
@@ -35,12 +35,16 @@ endif
 run: all
 	$(TARGET)
 
+test: all
+	PowerShell -ExecutionPolicy Bypass -File tests/run_phase9_tests.ps1
+
 clean:
 ifeq ($(OS),Windows_NT)
 	@if exist build rmdir /s /q build
 else
 	rm -rf build
 endif
+
 
 
 

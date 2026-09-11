@@ -4,7 +4,7 @@ Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com Postg
 
 ## Escopo Atual
 
-Esta entrega implementa as Fases 1 a 8 da especificacao:
+Esta entrega implementa as Fases 1 a 9 da especificacao:
 
 - estrutura inicial do projeto;
 - configuracao por variaveis de ambiente;
@@ -24,9 +24,10 @@ Esta entrega implementa as Fases 1 a 8 da especificacao:
 - Self Checkout com identificacao por CPF, emprestimo, devolucao, renovacao, consultas e pesquisa;
 - eventos MongoDB por origem apos operacoes confirmadas;
 - logs operacionais, auditoria e consultas NoSQL pela aplicacao;
-- relatorios operacionais de acervo, atrasos, ranking de livros, origens de emprestimo, reservas e pendencias.
+- relatorios operacionais de acervo, atrasos, ranking de livros, origens de emprestimo, reservas e pendencias;
+- testes automatizados integrados com banco isolado para PostgreSQL e MongoDB.
 
-Testes ampliados e documentacao final pertencem a fases futuras.
+Documentacao final pertence a fase futura.
 
 ## Dependencias
 
@@ -70,6 +71,15 @@ Em ambientes onde `make` esteja disponivel:
 ```sh
 make
 ```
+
+## Testes
+
+```powershell
+$env:POSTGRES_PASSWORD='sua_senha'
+mingw32-make test
+```
+
+O alvo `test` recria os bancos `smartlibrary_test` no PostgreSQL e MongoDB, executa fixtures controladas e valida fluxo, relatorios e documentos NoSQL.
 
 ## Execucao
 
@@ -118,6 +128,8 @@ smartlibrary/
 |-- database/
 |   |-- postgresql/
 |   `-- mongodb/
+|-- tests/
+|   `-- run_phase9_tests.ps1
 |-- docs/
 |   |-- arquitetura.md
 |   |-- modelo_relacional.md
@@ -128,6 +140,7 @@ smartlibrary/
 |   |-- reservas.md
 |   |-- self_checkout.md
 |   |-- relatorios.md
+|   |-- testes.md
 |   `-- diagrams/
 |-- .env.example
 |-- .gitignore

@@ -4,14 +4,14 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 
 ## Camadas
 
-- UI: menus, circulacao administrativa e Self Checkout.
-- Services: regras de negocio e coordenacao de operacoes.
+- UI: menus, circulacao administrativa, Self Checkout, NoSQL e relatorios.
+- Services: regras de negocio, coordenacao de operacoes e formatacao de resultados.
 - Repositories: consultas SQL e persistencia relacional.
 - Database: conexoes com PostgreSQL e MongoDB.
 - Config: leitura de configuracoes do ambiente.
 - Events: registro de eventos, logs e auditoria no MongoDB.
 
-## Decisoes Das Fases 1 A 6
+## Decisoes Das Fases 1 A 9
 
 - PostgreSQL e a fonte principal da verdade transacional.
 - MongoDB fica reservado para eventos, logs, auditoria e telemetria.
@@ -22,7 +22,10 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - A Fase 4 adiciona emprestimos, devolucoes e renovacoes transacionais.
 - A Fase 5 adiciona reservas e integra bloqueio de emprestimo/renovacao por reserva ativa de outro usuario.
 - A Fase 6 adiciona Self Checkout com identificacao de usuario, operacoes de circulacao, consultas e pesquisa de acervo.
-- Relatorios, testes ampliados e documentacao final ainda pertencem a fases futuras.
+- A Fase 7 amplia a trilha NoSQL com eventos por origem, logs, auditoria e consultas pela aplicacao.
+- A Fase 8 adiciona relatorios operacionais sobre acervo, circulacao, reservas e pendencias.
+- A Fase 9 adiciona testes automatizados integrados com PostgreSQL e MongoDB em bancos isolados.
+- Documentacao final ainda pertence a fase futura.
 
 ## Diagramas
 

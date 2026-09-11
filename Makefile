@@ -6,7 +6,7 @@ ifeq ($(OS),Windows_NT)
 TARGET := build/smartlibrary.exe
 endif
 
-SRC := src/main.c src/config/config.c src/database/postgres.c src/database/mongodb.c
+SRC := src/main.c src/config/config.c src/database/postgres.c src/database/mongodb.c src/models/usuario.c src/models/autor.c src/models/editora.c src/models/genero.c src/models/livro.c src/models/exemplar.c src/models/emprestimo.c src/models/reserva.c
 OBJ := $(SRC:src/%.c=build/%.o)
 
 CFLAGS := -std=c17 -Wall -Wextra -Wpedantic
@@ -41,3 +41,4 @@ ifeq ($(OS),Windows_NT)
 else
 	rm -rf build
 endif
+

@@ -4,14 +4,19 @@ Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com Postg
 
 ## Escopo Atual
 
-Esta entrega implementa somente a Fase 1 da especificacao:
+Esta entrega implementa as Fases 1 e 2 da especificacao:
 
 - estrutura inicial do projeto;
 - configuracao por variaveis de ambiente;
 - conexao PostgreSQL com libpq;
 - conexao MongoDB com MongoDB C Driver;
 - build com Makefile;
-- documentacao inicial em Markdown e Mermaid.
+- documentacao inicial em Markdown e Mermaid;
+- schema relacional PostgreSQL;
+- constraints, indexes e seed inicial;
+- modelo documental MongoDB com indexes e validators;
+- structs C das entidades principais;
+- dicionario de dados e diagramas C4 Componentes/MER.
 
 Cadastros, emprestimos, reservas, Self Checkout completo e relatorios pertencem a fases futuras.
 
@@ -79,16 +84,39 @@ smartlibrary/
 |   |-- config/
 |   |   |-- config.c
 |   |   `-- config.h
-|   `-- database/
-|       |-- postgres.c
-|       |-- postgres.h
-|       |-- mongodb.c
-|       `-- mongodb.h
+|   |-- database/
+|   |   |-- postgres.c
+|   |   |-- postgres.h
+|   |   |-- mongodb.c
+|   |   `-- mongodb.h
+|   `-- models/
+|       |-- usuario.c / usuario.h
+|       |-- autor.c / autor.h
+|       |-- editora.c / editora.h
+|       |-- genero.c / genero.h
+|       |-- livro.c / livro.h
+|       |-- exemplar.c / exemplar.h
+|       |-- emprestimo.c / emprestimo.h
+|       `-- reserva.c / reserva.h
+|-- database/
+|   |-- postgresql/
+|   |   |-- 001_schema.sql
+|   |   |-- 002_constraints.sql
+|   |   |-- 003_indexes.sql
+|   |   `-- 004_seed.sql
+|   `-- mongodb/
+|       |-- indexes.js
+|       `-- validators.js
 |-- docs/
 |   |-- arquitetura.md
+|   |-- modelo_relacional.md
+|   |-- modelo_nosql.md
+|   |-- dicionario_dados.md
 |   `-- diagrams/
 |       |-- c4_contexto.md
 |       |-- c4_containers.md
+|       |-- c4_componentes.md
+|       |-- modelo_er.md
 |       `-- arquitetura_geral.md
 |-- .env.example
 |-- .gitignore

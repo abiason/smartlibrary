@@ -1,0 +1,15 @@
+CREATE INDEX idx_usuario_perfil ON usuario (id_perfil);
+CREATE INDEX idx_usuario_ativo_bloqueado ON usuario (ativo, bloqueado);
+CREATE INDEX idx_livro_titulo ON livro (titulo);
+CREATE INDEX idx_livro_editora ON livro (id_editora);
+CREATE INDEX idx_livro_autor_autor ON livro_autor (id_autor);
+CREATE INDEX idx_livro_genero_genero ON livro_genero (id_genero);
+CREATE INDEX idx_exemplar_livro ON exemplar (id_livro);
+CREATE INDEX idx_exemplar_status ON exemplar (status);
+CREATE INDEX idx_emprestimo_usuario ON emprestimo (id_usuario);
+CREATE INDEX idx_emprestimo_status ON emprestimo (status);
+CREATE INDEX idx_emprestimo_data_prevista ON emprestimo (data_prevista_devolucao);
+CREATE INDEX idx_emprestimo_item_emprestimo ON emprestimo_item (id_emprestimo);
+CREATE INDEX idx_emprestimo_item_exemplar ON emprestimo_item (id_exemplar);
+CREATE INDEX idx_reserva_usuario ON reserva (id_usuario);
+CREATE INDEX idx_reserva_livro_status ON reserva (id_livro, status);

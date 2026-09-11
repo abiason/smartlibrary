@@ -106,9 +106,11 @@ void cadastro_ui_run(PostgresConnection *postgres) {
     int option = -1;
 
     while (option != 0) {
+        input_clear_screen();
         print_menu();
         if (!input_read_int("Opcao: ", &option)) {
             printf("[ERRO] Opcao invalida.\n");
+            input_wait_enter();
             continue;
         }
 
@@ -156,5 +158,11 @@ void cadastro_ui_run(PostgresConnection *postgres) {
                 printf("[ERRO] Opcao invalida.\n");
                 break;
         }
+
+        if (option != 0) {
+            input_wait_enter();
+        }
     }
 }
+
+

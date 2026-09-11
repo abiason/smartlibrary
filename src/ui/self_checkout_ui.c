@@ -55,6 +55,7 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
     int usuario_id = 0;
     int option = -1;
 
+    input_clear_screen();
     print_header();
     event_service_registrar_origem(mongo, "SELF_CHECKOUT_INICIADO", "SELF_CHECKOUT", 0, 0, 0, "");
     input_read_line("CPF: ", cpf, sizeof(cpf));
@@ -65,9 +66,11 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
     }
 
     while (option != 0) {
+        input_clear_screen();
         print_menu(nome);
         if (!input_read_int("Opcao: ", &option)) {
             printf("[ERRO] Opcao invalida.\n");
+            input_wait_enter();
             continue;
         }
 
@@ -97,8 +100,15 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
                 printf("[ERRO] Opcao invalida.\n");
                 break;
         }
+
+        if (option != 0) {
+            input_wait_enter();
+        }
     }
 
     event_service_registrar_origem(mongo, "SELF_CHECKOUT_FINALIZADO", "SELF_CHECKOUT", usuario_id, 0, 0, "");
 }
+
+
+
 

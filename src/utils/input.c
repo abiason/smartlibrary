@@ -4,6 +4,45 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#include <io.h>
+#define smartlibrary_isatty _isatty
+#define smartlibrary_fileno _fileno
+#else
+#include <unistd.h>
+#define smartlibrary_isatty isatty
+#define smartlibrary_fileno fileno
+#endif
+
+int input_is_interactive(void) {
+    return smartlibrary_isatty(smartlibrary_fileno(stdin)) && smartlibrary_isatty(smartlibrary_fileno(stdout));
+}
+
+void input_clear_screen(void) {
+    if (!input_is_interactive()) {
+        return;
+    }
+
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void input_wait_enter(void) {
+    int ch;
+
+    if (!input_is_interactive()) {
+        return;
+    }
+
+    printf("\nPressione Enter para continuar...");
+    fflush(stdout);
+    while ((ch = getchar()) != '\n' && ch != EOF) {
+    }
+}
+
 int input_read_line(const char *prompt, char *buffer, size_t size) {
     size_t length;
 
@@ -49,4 +88,3 @@ int input_read_int(const char *prompt, int *value) {
     *value = (int)parsed;
     return 1;
 }
-

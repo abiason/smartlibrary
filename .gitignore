@@ -1,0 +1,9 @@
+build/
+*.exe
+*.o
+*.obj
+*.dll
+*.log
+.env
+.vscode/
+.idea/

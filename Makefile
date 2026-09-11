@@ -1,0 +1,43 @@
+CC = gcc
+PKG_CONFIG ?= pkg-config
+
+TARGET := build/smartlibrary
+ifeq ($(OS),Windows_NT)
+TARGET := build/smartlibrary.exe
+endif
+
+SRC := src/main.c src/config/config.c src/database/postgres.c src/database/mongodb.c
+OBJ := $(SRC:src/%.c=build/%.o)
+
+CFLAGS := -std=c17 -Wall -Wextra -Wpedantic
+CPPFLAGS := -Isrc -D__USE_MINGW_ANSI_STDIO=1 $(shell $(PKG_CONFIG) --cflags libpq mongoc2)
+LDLIBS := $(shell $(PKG_CONFIG) --libs libpq mongoc2)
+
+.PHONY: all clean run check-deps
+
+all: check-deps $(TARGET)
+
+check-deps:
+	$(PKG_CONFIG) --cflags --libs libpq
+	$(PKG_CONFIG) --cflags --libs mongoc2
+
+$(TARGET): $(OBJ)
+	$(CC) $(OBJ) -o $@ $(LDLIBS)
+
+build/%.o: src/%.c
+ifeq ($(OS),Windows_NT)
+	@if not exist "$(subst /,\,$(dir $@))" mkdir "$(subst /,\,$(dir $@))"
+else
+	@mkdir -p $(dir $@)
+endif
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+run: all
+	$(TARGET)
+
+clean:
+ifeq ($(OS),Windows_NT)
+	@if exist build rmdir /s /q build
+else
+	rm -rf build
+endif

@@ -43,7 +43,7 @@ Quando nao ha historico ou vinculo impeditivo, a exclusao fisica e executada.
 
 ## Auditoria
 
-Alteracoes, exclusoes e desativacoes bem-sucedidas registram documentos na colecao `auditoria` do MongoDB. Isso mantem uma trilha operacional complementar ao banco transacional.
+Alteracoes, exclusoes e desativacoes bem-sucedidas registram documentos na colecao `auditoria` do MongoDB. A Fase 12 grava snapshots reais do registro antes e depois da operacao, usando JSON produzido pelo PostgreSQL e armazenado como objeto BSON quando valido. Em exclusoes fisicas, o campo `depois` fica nulo; em desativacoes, ele mostra o novo estado do registro.
 
 ## Separacao De Responsabilidades
 

@@ -51,10 +51,20 @@ static void print_rows(PGresult *result) {
     PQclear(result);
 }
 
-static void audit_int_id(MongoConnection *mongo, const char *entidade, int id, const char *acao, const char *depois) {
+#define AUDIT_SNAPSHOT_SIZE 4096
+
+static void read_audit_snapshot(PostgresConnection *postgres, const char *entidade, int id, char *buffer, int buffer_size) {
+    if (!has_postgres(postgres) || !cadastro_repository_obter_snapshot(postgres->conn, entidade, id, buffer, buffer_size)) {
+        if (buffer != NULL && buffer_size > 0) {
+            snprintf(buffer, (size_t)buffer_size, "null");
+        }
+    }
+}
+
+static void audit_int_id(MongoConnection *mongo, const char *entidade, int id, const char *acao, const char *antes, const char *depois) {
     char id_text[32];
     snprintf(id_text, sizeof(id_text), "%d", id);
-    event_service_registrar_auditoria(mongo, entidade, id_text, acao, 0, "cadastro anterior", depois);
+    event_service_registrar_auditoria_json(mongo, entidade, id_text, acao, 0, antes, depois);
 }
 
 int cadastro_service_criar_usuario(PostgresConnection *postgres, const Usuario *usuario) {
@@ -83,11 +93,15 @@ int cadastro_service_atualizar_usuario(PostgresConnection *postgres, MongoConnec
         fprintf(stderr, "[ERRO] Usuario invalido para alteracao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "usuario", usuario->id, antes, sizeof(antes));
     if (!cadastro_repository_atualizar_usuario(postgres->conn, usuario)) {
         printf("[ERRO] Usuario nao atualizado. Verifique ID, perfil e campos unicos.\n");
         return 0;
     }
-    audit_int_id(mongo, "usuario", usuario->id, "ALTERACAO", "usuario atualizado");
+    read_audit_snapshot(postgres, "usuario", usuario->id, depois, sizeof(depois));
+    audit_int_id(mongo, "usuario", usuario->id, "ALTERACAO", antes, depois);
     printf("[OK] Usuario atualizado.\n");
     return 1;
 }
@@ -98,11 +112,15 @@ int cadastro_service_remover_ou_desativar_usuario(PostgresConnection *postgres, 
         fprintf(stderr, "[ERRO] Usuario invalido para remocao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "usuario", usuario_id, antes, sizeof(antes));
     if (!cadastro_repository_remover_ou_desativar_usuario(postgres->conn, usuario_id, acao, sizeof(acao))) {
         printf("[ERRO] Usuario nao encontrado ou nao removido.\n");
         return 0;
     }
-    audit_int_id(mongo, "usuario", usuario_id, acao, acao[0] == 'E' ? "usuario excluido" : "usuario desativado");
+    read_audit_snapshot(postgres, "usuario", usuario_id, depois, sizeof(depois));
+    audit_int_id(mongo, "usuario", usuario_id, acao, antes, depois);
     printf("[OK] Usuario %s.\n", acao[0] == 'E' ? "excluido" : "desativado");
     return 1;
 }
@@ -132,11 +150,15 @@ int cadastro_service_atualizar_autor(PostgresConnection *postgres, MongoConnecti
         fprintf(stderr, "[ERRO] Autor invalido para alteracao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "autor", autor->id, antes, sizeof(antes));
     if (!cadastro_repository_atualizar_autor(postgres->conn, autor)) {
         printf("[ERRO] Autor nao atualizado.\n");
         return 0;
     }
-    audit_int_id(mongo, "autor", autor->id, "ALTERACAO", "autor atualizado");
+    read_audit_snapshot(postgres, "autor", autor->id, depois, sizeof(depois));
+    audit_int_id(mongo, "autor", autor->id, "ALTERACAO", antes, depois);
     printf("[OK] Autor atualizado.\n");
     return 1;
 }
@@ -147,11 +169,15 @@ int cadastro_service_excluir_autor(PostgresConnection *postgres, MongoConnection
         fprintf(stderr, "[ERRO] Autor invalido para exclusao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "autor", autor_id, antes, sizeof(antes));
     if (!cadastro_repository_excluir_autor(postgres->conn, autor_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
         return 0;
     }
-    audit_int_id(mongo, "autor", autor_id, "EXCLUSAO", motivo);
+    read_audit_snapshot(postgres, "autor", autor_id, depois, sizeof(depois));
+    audit_int_id(mongo, "autor", autor_id, "EXCLUSAO", antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -181,11 +207,15 @@ int cadastro_service_atualizar_editora(PostgresConnection *postgres, MongoConnec
         fprintf(stderr, "[ERRO] Editora invalida para alteracao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "editora", editora->id, antes, sizeof(antes));
     if (!cadastro_repository_atualizar_editora(postgres->conn, editora)) {
         printf("[ERRO] Editora nao atualizada.\n");
         return 0;
     }
-    audit_int_id(mongo, "editora", editora->id, "ALTERACAO", "editora atualizada");
+    read_audit_snapshot(postgres, "editora", editora->id, depois, sizeof(depois));
+    audit_int_id(mongo, "editora", editora->id, "ALTERACAO", antes, depois);
     printf("[OK] Editora atualizada.\n");
     return 1;
 }
@@ -196,11 +226,15 @@ int cadastro_service_excluir_editora(PostgresConnection *postgres, MongoConnecti
         fprintf(stderr, "[ERRO] Editora invalida para exclusao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "editora", editora_id, antes, sizeof(antes));
     if (!cadastro_repository_excluir_editora(postgres->conn, editora_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
         return 0;
     }
-    audit_int_id(mongo, "editora", editora_id, "EXCLUSAO", motivo);
+    read_audit_snapshot(postgres, "editora", editora_id, depois, sizeof(depois));
+    audit_int_id(mongo, "editora", editora_id, "EXCLUSAO", antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -230,11 +264,15 @@ int cadastro_service_atualizar_genero(PostgresConnection *postgres, MongoConnect
         fprintf(stderr, "[ERRO] Genero invalido para alteracao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "genero", genero->id, antes, sizeof(antes));
     if (!cadastro_repository_atualizar_genero(postgres->conn, genero)) {
         printf("[ERRO] Genero nao atualizado.\n");
         return 0;
     }
-    audit_int_id(mongo, "genero", genero->id, "ALTERACAO", "genero atualizado");
+    read_audit_snapshot(postgres, "genero", genero->id, depois, sizeof(depois));
+    audit_int_id(mongo, "genero", genero->id, "ALTERACAO", antes, depois);
     printf("[OK] Genero atualizado.\n");
     return 1;
 }
@@ -245,11 +283,15 @@ int cadastro_service_excluir_genero(PostgresConnection *postgres, MongoConnectio
         fprintf(stderr, "[ERRO] Genero invalido para exclusao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "genero", genero_id, antes, sizeof(antes));
     if (!cadastro_repository_excluir_genero(postgres->conn, genero_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
         return 0;
     }
-    audit_int_id(mongo, "genero", genero_id, "EXCLUSAO", motivo);
+    read_audit_snapshot(postgres, "genero", genero_id, depois, sizeof(depois));
+    audit_int_id(mongo, "genero", genero_id, "EXCLUSAO", antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -279,11 +321,15 @@ int cadastro_service_atualizar_livro(PostgresConnection *postgres, MongoConnecti
         fprintf(stderr, "[ERRO] Livro invalido para alteracao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "livro", livro->id, antes, sizeof(antes));
     if (!cadastro_repository_atualizar_livro(postgres->conn, livro)) {
         printf("[ERRO] Livro nao atualizado. Verifique ID, editora e campos unicos.\n");
         return 0;
     }
-    audit_int_id(mongo, "livro", livro->id, "ALTERACAO", "livro atualizado");
+    read_audit_snapshot(postgres, "livro", livro->id, depois, sizeof(depois));
+    audit_int_id(mongo, "livro", livro->id, "ALTERACAO", antes, depois);
     printf("[OK] Livro atualizado.\n");
     return 1;
 }
@@ -294,11 +340,15 @@ int cadastro_service_excluir_livro(PostgresConnection *postgres, MongoConnection
         fprintf(stderr, "[ERRO] Livro invalido para exclusao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "livro", livro_id, antes, sizeof(antes));
     if (!cadastro_repository_excluir_livro(postgres->conn, livro_id, motivo, sizeof(motivo))) {
         printf("[ERRO] %s\n", motivo);
         return 0;
     }
-    audit_int_id(mongo, "livro", livro_id, "EXCLUSAO", motivo);
+    read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
+    audit_int_id(mongo, "livro", livro_id, "EXCLUSAO", antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -328,11 +378,15 @@ int cadastro_service_atualizar_exemplar(PostgresConnection *postgres, MongoConne
         fprintf(stderr, "[ERRO] Exemplar invalido para alteracao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "exemplar", exemplar->id, antes, sizeof(antes));
     if (!cadastro_repository_atualizar_exemplar(postgres->conn, exemplar)) {
         printf("[ERRO] Exemplar nao atualizado. Verifique ID e campos unicos.\n");
         return 0;
     }
-    audit_int_id(mongo, "exemplar", exemplar->id, "ALTERACAO", "exemplar atualizado");
+    read_audit_snapshot(postgres, "exemplar", exemplar->id, depois, sizeof(depois));
+    audit_int_id(mongo, "exemplar", exemplar->id, "ALTERACAO", antes, depois);
     printf("[OK] Exemplar atualizado.\n");
     return 1;
 }
@@ -343,11 +397,15 @@ int cadastro_service_remover_ou_inativar_exemplar(PostgresConnection *postgres, 
         fprintf(stderr, "[ERRO] Exemplar invalido para remocao.\n");
         return 0;
     }
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    read_audit_snapshot(postgres, "exemplar", exemplar_id, antes, sizeof(antes));
     if (!cadastro_repository_remover_ou_inativar_exemplar(postgres->conn, exemplar_id, acao, sizeof(acao))) {
         printf("[ERRO] Exemplar nao encontrado ou nao removido.\n");
         return 0;
     }
-    audit_int_id(mongo, "exemplar", exemplar_id, acao, acao[0] == 'E' ? "exemplar excluido" : "exemplar em manutencao");
+    read_audit_snapshot(postgres, "exemplar", exemplar_id, depois, sizeof(depois));
+    audit_int_id(mongo, "exemplar", exemplar_id, acao, antes, depois);
     printf("[OK] Exemplar %s.\n", acao[0] == 'E' ? "excluido" : "marcado como MANUTENCAO");
     return 1;
 }

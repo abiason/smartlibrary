@@ -134,6 +134,15 @@ Assert-True ([int]$auditCount -ge 1) "Auditoria de emprestimo nao foi registrada
 $cadastroAuditCount = Invoke-MongoScalar "db.auditoria.countDocuments({entidade:'usuario', acao:{`$in:['ALTERACAO','DESATIVACAO']}})"
 Assert-True ([int]$cadastroAuditCount -ge 2) "Auditoria de alteracao/desativacao de usuario nao foi registrada."
 
+$usuarioAuditBefore = Invoke-MongoScalar "const d=db.auditoria.findOne({entidade:'usuario', acao:'ALTERACAO'}); d && d.antes && d.antes.nome"
+Assert-True ($usuarioAuditBefore -eq "Usuario Teste Fase 9") "Auditoria antes/depois nao preservou o nome anterior do usuario."
+
+$usuarioAuditAfter = Invoke-MongoScalar "const d=db.auditoria.findOne({entidade:'usuario', acao:'ALTERACAO'}); d && d.depois && d.depois.nome"
+Assert-True ($usuarioAuditAfter -eq "Usuario Teste Fase 11") "Auditoria antes/depois nao preservou o nome novo do usuario."
+
+$usuarioDeactivateAfter = Invoke-MongoScalar "const d=db.auditoria.findOne({entidade:'usuario', acao:'DESATIVACAO'}); d && d.depois && d.depois.ativo"
+Assert-True ($usuarioDeactivateAfter -eq "false") "Auditoria de desativacao nao registrou usuario inativo no depois."
+
 $logCount = Invoke-MongoScalar "db.logs.countDocuments({componente:'main'})"
 Assert-True ([int]$logCount -ge 1) "Logs de sistema nao foram registrados."
 

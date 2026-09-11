@@ -10,6 +10,8 @@
 
 #include <libpq-fe.h>
 
+int cadastro_repository_obter_snapshot(PGconn *conn, const char *entidade, int id, char *buffer, int buffer_size);
+
 int cadastro_repository_criar_usuario(PGconn *conn, const Usuario *usuario);
 PGresult *cadastro_repository_listar_usuarios(PGconn *conn);
 PGresult *cadastro_repository_buscar_usuarios(PGconn *conn, const char *termo);

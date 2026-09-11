@@ -3,6 +3,7 @@
 #include <bson/bson.h>
 #include <mongoc/mongoc.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 static int has_mongo(MongoConnection *mongo) {
@@ -148,6 +149,54 @@ int event_service_registrar_auditoria(MongoConnection *mongo, const char *entida
     return ok ? 1 : 0;
 }
 
+static void append_json_or_text(bson_t *doc, const char *key, const char *json_text) {
+    bson_error_t error;
+    bson_t *parsed;
+
+    if (json_text == NULL || json_text[0] == '\0' || strcmp(json_text, "null") == 0) {
+        BSON_APPEND_NULL(doc, key);
+        return;
+    }
+
+    parsed = bson_new_from_json((const uint8_t *)json_text, -1, &error);
+    if (parsed == NULL) {
+        BSON_APPEND_UTF8(doc, key, json_text);
+        return;
+    }
+
+    BSON_APPEND_DOCUMENT(doc, key, parsed);
+    bson_destroy(parsed);
+}
+
+int event_service_registrar_auditoria_json(MongoConnection *mongo, const char *entidade, const char *entidade_id, const char *acao, int usuario_id, const char *antes_json, const char *depois_json) {
+    mongoc_collection_t *collection;
+    bson_error_t error;
+    bson_t doc;
+    bool ok;
+
+    if (!has_mongo(mongo) || entidade == NULL || entidade_id == NULL || acao == NULL) {
+        return 0;
+    }
+
+    collection = mongoc_database_get_collection(mongo->database, "auditoria");
+    bson_init(&doc);
+    BSON_APPEND_UTF8(&doc, "entidade", entidade);
+    BSON_APPEND_UTF8(&doc, "entidadeId", entidade_id);
+    BSON_APPEND_UTF8(&doc, "acao", acao);
+    BSON_APPEND_INT32(&doc, "usuarioId", usuario_id);
+    BSON_APPEND_DATE_TIME(&doc, "dataHora", (int64_t)time(NULL) * 1000);
+    append_json_or_text(&doc, "antes", antes_json);
+    append_json_or_text(&doc, "depois", depois_json);
+
+    ok = mongoc_collection_insert_one(collection, &doc, NULL, NULL, &error);
+    if (!ok) {
+        fprintf(stderr, "[WARN] MongoDB: auditoria nao registrada: %s\n", error.message);
+    }
+
+    bson_destroy(&doc);
+    mongoc_collection_destroy(collection);
+    return ok ? 1 : 0;
+}
 void event_service_listar_eventos_recentes(MongoConnection *mongo, int limite) {
     bson_t query;
     bson_t *opts;

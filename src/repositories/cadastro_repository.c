@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static int exec_command_ok(PGconn *conn, const char *sql, int count, const char *const *params) {
     PGresult *result = PQexecParams(conn, sql, count, NULL, params, NULL, NULL, 0);
@@ -72,6 +73,79 @@ static void set_text(char *buffer, int size, const char *text) {
     if (buffer != NULL && size > 0) {
         snprintf(buffer, (size_t)size, "%s", text != NULL ? text : "");
     }
+}
+
+
+static int select_snapshot(PGconn *conn, const char *sql, int id, char *buffer, int buffer_size) {
+    char id_text[16];
+    const char *params[1];
+    PGresult *result;
+    int found = 0;
+
+    set_text(buffer, buffer_size, "null");
+    snprintf(id_text, sizeof(id_text), "%d", id);
+    params[0] = id_text;
+
+    result = exec_select_params(conn, sql, 1, params);
+    if (result != NULL && PQntuples(result) > 0 && !PQgetisnull(result, 0, 0)) {
+        set_text(buffer, buffer_size, PQgetvalue(result, 0, 0));
+        found = 1;
+    }
+
+    if (result != NULL) {
+        PQclear(result);
+    }
+    return found;
+}
+
+int cadastro_repository_obter_snapshot(PGconn *conn, const char *entidade, int id, char *buffer, int buffer_size) {
+    if (conn == NULL || entidade == NULL || id <= 0) {
+        set_text(buffer, buffer_size, "null");
+        return 0;
+    }
+
+    if (strcmp(entidade, "usuario") == 0) {
+        return select_snapshot(conn,
+            "SELECT row_to_json(t)::text FROM ("
+            "SELECT id_usuario, nome, cpf, email, telefone, id_perfil, ativo, bloqueado, data_cadastro "
+            "FROM usuario WHERE id_usuario = $1::integer) t",
+            id, buffer, buffer_size);
+    }
+    if (strcmp(entidade, "autor") == 0) {
+        return select_snapshot(conn,
+            "SELECT row_to_json(t)::text FROM ("
+            "SELECT id_autor, nome, nacionalidade FROM autor WHERE id_autor = $1::integer) t",
+            id, buffer, buffer_size);
+    }
+    if (strcmp(entidade, "editora") == 0) {
+        return select_snapshot(conn,
+            "SELECT row_to_json(t)::text FROM ("
+            "SELECT id_editora, nome, cidade, pais FROM editora WHERE id_editora = $1::integer) t",
+            id, buffer, buffer_size);
+    }
+    if (strcmp(entidade, "genero") == 0) {
+        return select_snapshot(conn,
+            "SELECT row_to_json(t)::text FROM ("
+            "SELECT id_genero, nome, descricao FROM genero WHERE id_genero = $1::integer) t",
+            id, buffer, buffer_size);
+    }
+    if (strcmp(entidade, "livro") == 0) {
+        return select_snapshot(conn,
+            "SELECT row_to_json(t)::text FROM ("
+            "SELECT id_livro, isbn, titulo, subtitulo, ano_publicacao, edicao, id_editora, idioma, descricao "
+            "FROM livro WHERE id_livro = $1::integer) t",
+            id, buffer, buffer_size);
+    }
+    if (strcmp(entidade, "exemplar") == 0) {
+        return select_snapshot(conn,
+            "SELECT row_to_json(t)::text FROM ("
+            "SELECT id_exemplar, id_livro, codigo_barras, rfid, status, localizacao, data_aquisicao "
+            "FROM exemplar WHERE id_exemplar = $1::integer) t",
+            id, buffer, buffer_size);
+    }
+
+    set_text(buffer, buffer_size, "null");
+    return 0;
 }
 
 int cadastro_repository_criar_usuario(PGconn *conn, const Usuario *usuario) {

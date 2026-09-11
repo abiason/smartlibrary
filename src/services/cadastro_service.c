@@ -153,10 +153,10 @@ static void read_audit_snapshot(PostgresConnection *postgres, const char *entida
     }
 }
 
-static void audit_int_id(MongoConnection *mongo, const char *entidade, int id, const char *acao, const char *antes, const char *depois) {
+static void audit_int_id(MongoConnection *mongo, const char *entidade, int id, const char *acao, int operador_id, const char *antes, const char *depois) {
     char id_text[32];
     snprintf(id_text, sizeof(id_text), "%d", id);
-    event_service_registrar_auditoria_json(mongo, entidade, id_text, acao, 0, antes, depois);
+    event_service_registrar_auditoria_json(mongo, entidade, id_text, acao, operador_id, antes, depois);
 }
 
 int cadastro_service_criar_usuario(PostgresConnection *postgres, const Usuario *usuario) {
@@ -188,7 +188,7 @@ void cadastro_service_buscar_usuarios(PostgresConnection *postgres, const char *
     }
 }
 
-int cadastro_service_atualizar_usuario(PostgresConnection *postgres, MongoConnection *mongo, const Usuario *usuario) {
+int cadastro_service_atualizar_usuario(PostgresConnection *postgres, MongoConnection *mongo, const Usuario *usuario, int operador_id) {
     if (!has_postgres(postgres) || usuario == NULL || usuario->id <= 0 || !has_text(usuario->nome) || usuario->perfil_id <= 0) {
         fprintf(stderr, "[ERRO] Usuario invalido para alteracao.\n");
         return 0;
@@ -206,12 +206,12 @@ int cadastro_service_atualizar_usuario(PostgresConnection *postgres, MongoConnec
         return 0;
     }
     read_audit_snapshot(postgres, "usuario", usuario->id, depois, sizeof(depois));
-    audit_int_id(mongo, "usuario", usuario->id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "usuario", usuario->id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Usuario atualizado.\n");
     return 1;
 }
 
-int cadastro_service_remover_ou_desativar_usuario(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id) {
+int cadastro_service_remover_ou_desativar_usuario(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, int operador_id) {
     char acao[32];
     if (!has_postgres(postgres) || usuario_id <= 0) {
         fprintf(stderr, "[ERRO] Usuario invalido para remocao.\n");
@@ -225,7 +225,7 @@ int cadastro_service_remover_ou_desativar_usuario(PostgresConnection *postgres, 
         return 0;
     }
     read_audit_snapshot(postgres, "usuario", usuario_id, depois, sizeof(depois));
-    audit_int_id(mongo, "usuario", usuario_id, acao, antes, depois);
+    audit_int_id(mongo, "usuario", usuario_id, acao, operador_id, antes, depois);
     printf("[OK] Usuario %s.\n", acao[0] == 'E' ? "excluido" : "desativado");
     return 1;
 }
@@ -250,7 +250,7 @@ void cadastro_service_buscar_autores(PostgresConnection *postgres, const char *t
     }
 }
 
-int cadastro_service_atualizar_autor(PostgresConnection *postgres, MongoConnection *mongo, const Autor *autor) {
+int cadastro_service_atualizar_autor(PostgresConnection *postgres, MongoConnection *mongo, const Autor *autor, int operador_id) {
     if (!has_postgres(postgres) || autor == NULL || autor->id <= 0 || !has_text(autor->nome)) {
         fprintf(stderr, "[ERRO] Autor invalido para alteracao.\n");
         return 0;
@@ -263,12 +263,12 @@ int cadastro_service_atualizar_autor(PostgresConnection *postgres, MongoConnecti
         return 0;
     }
     read_audit_snapshot(postgres, "autor", autor->id, depois, sizeof(depois));
-    audit_int_id(mongo, "autor", autor->id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "autor", autor->id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Autor atualizado.\n");
     return 1;
 }
 
-int cadastro_service_excluir_autor(PostgresConnection *postgres, MongoConnection *mongo, int autor_id) {
+int cadastro_service_excluir_autor(PostgresConnection *postgres, MongoConnection *mongo, int autor_id, int operador_id) {
     char motivo[128];
     if (!has_postgres(postgres) || autor_id <= 0) {
         fprintf(stderr, "[ERRO] Autor invalido para exclusao.\n");
@@ -282,7 +282,7 @@ int cadastro_service_excluir_autor(PostgresConnection *postgres, MongoConnection
         return 0;
     }
     read_audit_snapshot(postgres, "autor", autor_id, depois, sizeof(depois));
-    audit_int_id(mongo, "autor", autor_id, "EXCLUSAO", antes, depois);
+    audit_int_id(mongo, "autor", autor_id, "EXCLUSAO", operador_id, antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -307,7 +307,7 @@ void cadastro_service_buscar_editoras(PostgresConnection *postgres, const char *
     }
 }
 
-int cadastro_service_atualizar_editora(PostgresConnection *postgres, MongoConnection *mongo, const Editora *editora) {
+int cadastro_service_atualizar_editora(PostgresConnection *postgres, MongoConnection *mongo, const Editora *editora, int operador_id) {
     if (!has_postgres(postgres) || editora == NULL || editora->id <= 0 || !has_text(editora->nome)) {
         fprintf(stderr, "[ERRO] Editora invalida para alteracao.\n");
         return 0;
@@ -320,12 +320,12 @@ int cadastro_service_atualizar_editora(PostgresConnection *postgres, MongoConnec
         return 0;
     }
     read_audit_snapshot(postgres, "editora", editora->id, depois, sizeof(depois));
-    audit_int_id(mongo, "editora", editora->id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "editora", editora->id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Editora atualizada.\n");
     return 1;
 }
 
-int cadastro_service_excluir_editora(PostgresConnection *postgres, MongoConnection *mongo, int editora_id) {
+int cadastro_service_excluir_editora(PostgresConnection *postgres, MongoConnection *mongo, int editora_id, int operador_id) {
     char motivo[128];
     if (!has_postgres(postgres) || editora_id <= 0) {
         fprintf(stderr, "[ERRO] Editora invalida para exclusao.\n");
@@ -339,7 +339,7 @@ int cadastro_service_excluir_editora(PostgresConnection *postgres, MongoConnecti
         return 0;
     }
     read_audit_snapshot(postgres, "editora", editora_id, depois, sizeof(depois));
-    audit_int_id(mongo, "editora", editora_id, "EXCLUSAO", antes, depois);
+    audit_int_id(mongo, "editora", editora_id, "EXCLUSAO", operador_id, antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -364,7 +364,7 @@ void cadastro_service_buscar_generos(PostgresConnection *postgres, const char *t
     }
 }
 
-int cadastro_service_atualizar_genero(PostgresConnection *postgres, MongoConnection *mongo, const Genero *genero) {
+int cadastro_service_atualizar_genero(PostgresConnection *postgres, MongoConnection *mongo, const Genero *genero, int operador_id) {
     if (!has_postgres(postgres) || genero == NULL || genero->id <= 0 || !has_text(genero->nome)) {
         fprintf(stderr, "[ERRO] Genero invalido para alteracao.\n");
         return 0;
@@ -377,12 +377,12 @@ int cadastro_service_atualizar_genero(PostgresConnection *postgres, MongoConnect
         return 0;
     }
     read_audit_snapshot(postgres, "genero", genero->id, depois, sizeof(depois));
-    audit_int_id(mongo, "genero", genero->id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "genero", genero->id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Genero atualizado.\n");
     return 1;
 }
 
-int cadastro_service_excluir_genero(PostgresConnection *postgres, MongoConnection *mongo, int genero_id) {
+int cadastro_service_excluir_genero(PostgresConnection *postgres, MongoConnection *mongo, int genero_id, int operador_id) {
     char motivo[128];
     if (!has_postgres(postgres) || genero_id <= 0) {
         fprintf(stderr, "[ERRO] Genero invalido para exclusao.\n");
@@ -396,7 +396,7 @@ int cadastro_service_excluir_genero(PostgresConnection *postgres, MongoConnectio
         return 0;
     }
     read_audit_snapshot(postgres, "genero", genero_id, depois, sizeof(depois));
-    audit_int_id(mongo, "genero", genero_id, "EXCLUSAO", antes, depois);
+    audit_int_id(mongo, "genero", genero_id, "EXCLUSAO", operador_id, antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
@@ -421,7 +421,7 @@ void cadastro_service_buscar_livros(PostgresConnection *postgres, const char *te
     }
 }
 
-int cadastro_service_atualizar_livro(PostgresConnection *postgres, MongoConnection *mongo, const Livro *livro) {
+int cadastro_service_atualizar_livro(PostgresConnection *postgres, MongoConnection *mongo, const Livro *livro, int operador_id) {
     if (!has_postgres(postgres) || livro == NULL || livro->id <= 0 || !validar_livro(livro)) {
         fprintf(stderr, "[ERRO] Livro invalido para alteracao. Verifique titulo, ano e edicao.\n");
         return 0;
@@ -434,12 +434,12 @@ int cadastro_service_atualizar_livro(PostgresConnection *postgres, MongoConnecti
         return 0;
     }
     read_audit_snapshot(postgres, "livro", livro->id, depois, sizeof(depois));
-    audit_int_id(mongo, "livro", livro->id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "livro", livro->id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Livro atualizado.\n");
     return 1;
 }
 
-int cadastro_service_excluir_livro(PostgresConnection *postgres, MongoConnection *mongo, int livro_id) {
+int cadastro_service_excluir_livro(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int operador_id) {
     char motivo[128];
     if (!has_postgres(postgres) || livro_id <= 0) {
         fprintf(stderr, "[ERRO] Livro invalido para exclusao.\n");
@@ -453,12 +453,12 @@ int cadastro_service_excluir_livro(PostgresConnection *postgres, MongoConnection
         return 0;
     }
     read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
-    audit_int_id(mongo, "livro", livro_id, "EXCLUSAO", antes, depois);
+    audit_int_id(mongo, "livro", livro_id, "EXCLUSAO", operador_id, antes, depois);
     printf("[OK] %s\n", motivo);
     return 1;
 }
 
-int cadastro_service_vincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id) {
+int cadastro_service_vincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id, int operador_id) {
     char antes[AUDIT_SNAPSHOT_SIZE];
     char depois[AUDIT_SNAPSHOT_SIZE];
     if (!has_postgres(postgres) || livro_id <= 0 || autor_id <= 0) {
@@ -471,12 +471,12 @@ int cadastro_service_vincular_livro_autor(PostgresConnection *postgres, MongoCon
         return 0;
     }
     read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
-    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Autor vinculado ao livro.\n");
     return 1;
 }
 
-int cadastro_service_desvincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id) {
+int cadastro_service_desvincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id, int operador_id) {
     char antes[AUDIT_SNAPSHOT_SIZE];
     char depois[AUDIT_SNAPSHOT_SIZE];
     if (!has_postgres(postgres) || livro_id <= 0 || autor_id <= 0) {
@@ -489,12 +489,12 @@ int cadastro_service_desvincular_livro_autor(PostgresConnection *postgres, Mongo
         return 0;
     }
     read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
-    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Autor desvinculado do livro.\n");
     return 1;
 }
 
-int cadastro_service_vincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id) {
+int cadastro_service_vincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id, int operador_id) {
     char antes[AUDIT_SNAPSHOT_SIZE];
     char depois[AUDIT_SNAPSHOT_SIZE];
     if (!has_postgres(postgres) || livro_id <= 0 || genero_id <= 0) {
@@ -507,12 +507,12 @@ int cadastro_service_vincular_livro_genero(PostgresConnection *postgres, MongoCo
         return 0;
     }
     read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
-    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Genero vinculado ao livro.\n");
     return 1;
 }
 
-int cadastro_service_desvincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id) {
+int cadastro_service_desvincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id, int operador_id) {
     char antes[AUDIT_SNAPSHOT_SIZE];
     char depois[AUDIT_SNAPSHOT_SIZE];
     if (!has_postgres(postgres) || livro_id <= 0 || genero_id <= 0) {
@@ -525,7 +525,7 @@ int cadastro_service_desvincular_livro_genero(PostgresConnection *postgres, Mong
         return 0;
     }
     read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
-    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Genero desvinculado do livro.\n");
     return 1;
 }
@@ -549,7 +549,7 @@ void cadastro_service_buscar_exemplares(PostgresConnection *postgres, const char
     }
 }
 
-int cadastro_service_atualizar_exemplar(PostgresConnection *postgres, MongoConnection *mongo, const Exemplar *exemplar) {
+int cadastro_service_atualizar_exemplar(PostgresConnection *postgres, MongoConnection *mongo, const Exemplar *exemplar, int operador_id) {
     if (!has_postgres(postgres) || exemplar == NULL || exemplar->id <= 0 || !has_text(exemplar->codigo_barras)) {
         fprintf(stderr, "[ERRO] Exemplar invalido para alteracao.\n");
         return 0;
@@ -567,12 +567,12 @@ int cadastro_service_atualizar_exemplar(PostgresConnection *postgres, MongoConne
         return 0;
     }
     read_audit_snapshot(postgres, "exemplar", exemplar->id, depois, sizeof(depois));
-    audit_int_id(mongo, "exemplar", exemplar->id, "ALTERACAO", antes, depois);
+    audit_int_id(mongo, "exemplar", exemplar->id, "ALTERACAO", operador_id, antes, depois);
     printf("[OK] Exemplar atualizado.\n");
     return 1;
 }
 
-int cadastro_service_remover_ou_inativar_exemplar(PostgresConnection *postgres, MongoConnection *mongo, int exemplar_id) {
+int cadastro_service_remover_ou_inativar_exemplar(PostgresConnection *postgres, MongoConnection *mongo, int exemplar_id, int operador_id) {
     char acao[32];
     if (!has_postgres(postgres) || exemplar_id <= 0) {
         fprintf(stderr, "[ERRO] Exemplar invalido para remocao.\n");
@@ -586,7 +586,7 @@ int cadastro_service_remover_ou_inativar_exemplar(PostgresConnection *postgres, 
         return 0;
     }
     read_audit_snapshot(postgres, "exemplar", exemplar_id, depois, sizeof(depois));
-    audit_int_id(mongo, "exemplar", exemplar_id, acao, antes, depois);
+    audit_int_id(mongo, "exemplar", exemplar_id, acao, operador_id, antes, depois);
     printf("[OK] Exemplar %s.\n", acao[0] == 'E' ? "excluido" : "marcado como MANUTENCAO");
     return 1;
 }

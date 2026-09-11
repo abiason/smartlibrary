@@ -154,7 +154,7 @@ static void buscar(PostgresConnection *postgres) {
     }
 }
 
-static void alterar_usuario(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar_usuario(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Usuario usuario = {0};
     int ativo = 1;
     int bloqueado = 0;
@@ -167,35 +167,35 @@ static void alterar_usuario(PostgresConnection *postgres, MongoConnection *mongo
     input_read_int("Bloqueado? 1=sim 0=nao: ", &bloqueado);
     usuario.ativo = ativo != 0;
     usuario.bloqueado = bloqueado != 0;
-    cadastro_service_atualizar_usuario(postgres, mongo, &usuario);
+    cadastro_service_atualizar_usuario(postgres, mongo, &usuario, operador_id);
 }
 
-static void alterar_autor(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar_autor(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Autor autor = {0};
     input_read_int("ID do autor: ", &autor.id);
     input_read_line("Novo nome: ", autor.nome, sizeof(autor.nome));
     input_read_line("Nova nacionalidade: ", autor.nacionalidade, sizeof(autor.nacionalidade));
-    cadastro_service_atualizar_autor(postgres, mongo, &autor);
+    cadastro_service_atualizar_autor(postgres, mongo, &autor, operador_id);
 }
 
-static void alterar_editora(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar_editora(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Editora editora = {0};
     input_read_int("ID da editora: ", &editora.id);
     input_read_line("Novo nome: ", editora.nome, sizeof(editora.nome));
     input_read_line("Nova cidade: ", editora.cidade, sizeof(editora.cidade));
     input_read_line("Novo pais: ", editora.pais, sizeof(editora.pais));
-    cadastro_service_atualizar_editora(postgres, mongo, &editora);
+    cadastro_service_atualizar_editora(postgres, mongo, &editora, operador_id);
 }
 
-static void alterar_genero(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar_genero(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Genero genero = {0};
     input_read_int("ID do genero: ", &genero.id);
     input_read_line("Novo nome: ", genero.nome, sizeof(genero.nome));
     input_read_line("Nova descricao: ", genero.descricao, sizeof(genero.descricao));
-    cadastro_service_atualizar_genero(postgres, mongo, &genero);
+    cadastro_service_atualizar_genero(postgres, mongo, &genero, operador_id);
 }
 
-static void alterar_livro(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar_livro(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Livro livro = {0};
     input_read_int("ID do livro: ", &livro.id);
     input_read_line("Novo ISBN: ", livro.isbn, sizeof(livro.isbn));
@@ -206,48 +206,48 @@ static void alterar_livro(PostgresConnection *postgres, MongoConnection *mongo) 
     input_read_int("ID da editora (0 para vazio): ", &livro.editora_id);
     input_read_line("Idioma: ", livro.idioma, sizeof(livro.idioma));
     input_read_line("Descricao: ", livro.descricao, sizeof(livro.descricao));
-    cadastro_service_atualizar_livro(postgres, mongo, &livro);
+    cadastro_service_atualizar_livro(postgres, mongo, &livro, operador_id);
 }
 
-static void alterar_exemplar(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar_exemplar(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Exemplar exemplar = {0};
     input_read_int("ID do exemplar: ", &exemplar.id);
     input_read_line("Novo codigo de barras: ", exemplar.codigo_barras, sizeof(exemplar.codigo_barras));
     input_read_line("Novo RFID: ", exemplar.rfid, sizeof(exemplar.rfid));
     exemplar.status = read_status_exemplar();
     input_read_line("Nova localizacao: ", exemplar.localizacao, sizeof(exemplar.localizacao));
-    cadastro_service_atualizar_exemplar(postgres, mongo, &exemplar);
+    cadastro_service_atualizar_exemplar(postgres, mongo, &exemplar, operador_id);
 }
 
-static void alterar(PostgresConnection *postgres, MongoConnection *mongo) {
+static void alterar(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     switch (escolher_entidade()) {
-        case 1: alterar_usuario(postgres, mongo); break;
-        case 2: alterar_autor(postgres, mongo); break;
-        case 3: alterar_editora(postgres, mongo); break;
-        case 4: alterar_genero(postgres, mongo); break;
-        case 5: alterar_livro(postgres, mongo); break;
-        case 6: alterar_exemplar(postgres, mongo); break;
+        case 1: alterar_usuario(postgres, mongo, operador_id); break;
+        case 2: alterar_autor(postgres, mongo, operador_id); break;
+        case 3: alterar_editora(postgres, mongo, operador_id); break;
+        case 4: alterar_genero(postgres, mongo, operador_id); break;
+        case 5: alterar_livro(postgres, mongo, operador_id); break;
+        case 6: alterar_exemplar(postgres, mongo, operador_id); break;
         default: printf("[ERRO] Entidade invalida.\n"); break;
     }
 }
 
-static void excluir_ou_desativar(PostgresConnection *postgres, MongoConnection *mongo) {
+static void excluir_ou_desativar(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     int id = 0;
     int entity = escolher_entidade();
     input_read_int("ID para excluir/desativar: ", &id);
 
     switch (entity) {
-        case 1: cadastro_service_remover_ou_desativar_usuario(postgres, mongo, id); break;
-        case 2: cadastro_service_excluir_autor(postgres, mongo, id); break;
-        case 3: cadastro_service_excluir_editora(postgres, mongo, id); break;
-        case 4: cadastro_service_excluir_genero(postgres, mongo, id); break;
-        case 5: cadastro_service_excluir_livro(postgres, mongo, id); break;
-        case 6: cadastro_service_remover_ou_inativar_exemplar(postgres, mongo, id); break;
+        case 1: cadastro_service_remover_ou_desativar_usuario(postgres, mongo, id, operador_id); break;
+        case 2: cadastro_service_excluir_autor(postgres, mongo, id, operador_id); break;
+        case 3: cadastro_service_excluir_editora(postgres, mongo, id, operador_id); break;
+        case 4: cadastro_service_excluir_genero(postgres, mongo, id, operador_id); break;
+        case 5: cadastro_service_excluir_livro(postgres, mongo, id, operador_id); break;
+        case 6: cadastro_service_remover_ou_inativar_exemplar(postgres, mongo, id, operador_id); break;
         default: printf("[ERRO] Entidade invalida.\n"); break;
     }
 }
 
-static void gerenciar_vinculos_livro(PostgresConnection *postgres, MongoConnection *mongo) {
+static void gerenciar_vinculos_livro(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     int option = 0;
     int livro_id = 0;
     int related_id = 0;
@@ -262,19 +262,19 @@ static void gerenciar_vinculos_livro(PostgresConnection *postgres, MongoConnecti
     switch (option) {
         case 1:
             input_read_int("ID do autor: ", &related_id);
-            cadastro_service_vincular_livro_autor(postgres, mongo, livro_id, related_id);
+            cadastro_service_vincular_livro_autor(postgres, mongo, livro_id, related_id, operador_id);
             break;
         case 2:
             input_read_int("ID do autor: ", &related_id);
-            cadastro_service_desvincular_livro_autor(postgres, mongo, livro_id, related_id);
+            cadastro_service_desvincular_livro_autor(postgres, mongo, livro_id, related_id, operador_id);
             break;
         case 3:
             input_read_int("ID do genero: ", &related_id);
-            cadastro_service_vincular_livro_genero(postgres, mongo, livro_id, related_id);
+            cadastro_service_vincular_livro_genero(postgres, mongo, livro_id, related_id, operador_id);
             break;
         case 4:
             input_read_int("ID do genero: ", &related_id);
-            cadastro_service_desvincular_livro_genero(postgres, mongo, livro_id, related_id);
+            cadastro_service_desvincular_livro_genero(postgres, mongo, livro_id, related_id, operador_id);
             break;
         default:
             printf("[ERRO] Opcao invalida.\n");
@@ -295,7 +295,7 @@ static void print_menu(void) {
     printf("0 - Voltar\n");
 }
 
-void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
+void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     int option = -1;
 
     while (option != 0) {
@@ -318,13 +318,13 @@ void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
                 buscar(postgres);
                 break;
             case 4:
-                alterar(postgres, mongo);
+                alterar(postgres, mongo, operador_id);
                 break;
             case 5:
-                excluir_ou_desativar(postgres, mongo);
+                excluir_ou_desativar(postgres, mongo, operador_id);
                 break;
             case 6:
-                gerenciar_vinculos_livro(postgres, mongo);
+                gerenciar_vinculos_livro(postgres, mongo, operador_id);
                 break;
             case 0:
                 printf("[INFO] Voltando ao menu principal.\n");

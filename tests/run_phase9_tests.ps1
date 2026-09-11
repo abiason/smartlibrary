@@ -189,6 +189,9 @@ Assert-True ($usuarioAuditBefore -eq "Usuario Teste Fase 9") "Auditoria antes/de
 $usuarioAuditAfter = Invoke-MongoScalar "const d=db.auditoria.findOne({entidade:'usuario', acao:'ALTERACAO'}); d && d.depois && d.depois.nome"
 Assert-True ($usuarioAuditAfter -eq "Usuario Teste Fase 11") "Auditoria antes/depois nao preservou o nome novo do usuario."
 
+$usuarioAuditOperator = Invoke-MongoScalar "const d=db.auditoria.findOne({entidade:'usuario', acao:'ALTERACAO'}); d && d.usuarioId"
+Assert-True ($usuarioAuditOperator -eq "9000") "Auditoria administrativa deveria registrar o operador autenticado 9000, obtido $usuarioAuditOperator."
+
 $usuarioDeactivateAfter = Invoke-MongoScalar "const d=db.auditoria.findOne({entidade:'usuario', acao:'DESATIVACAO'}); d && d.depois && d.depois.ativo"
 Assert-True ($usuarioDeactivateAfter -eq "false") "Auditoria de desativacao nao registrou usuario inativo no depois."
 

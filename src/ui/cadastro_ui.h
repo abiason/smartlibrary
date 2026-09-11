@@ -4,6 +4,6 @@
 #include "database/mongodb.h"
 #include "database/postgres.h"
 
-void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo);
+void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo, int operador_id);
 
 #endif

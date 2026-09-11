@@ -64,7 +64,7 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo, const Aut
 
         switch (option) {
             case 1:
-                cadastro_ui_run(postgres, mongo);
+                cadastro_ui_run(postgres, mongo, session != NULL ? session->usuario_id : 0);
                 break;
             case 2:
                 emprestimo_ui_run(postgres, mongo);

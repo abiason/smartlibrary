@@ -16,7 +16,7 @@ A Fase 15 consolida a cobertura automatizada em uma matriz de evidencias. O test
 | Circulacao | Emprestimo e devolucao com estado final do exemplar validado |
 | Relatorios | Acesso aos relatorios operacionais pela aplicacao |
 | NoSQL | Consulta ao menu NoSQL e conferencia de documentos persistidos |
-| Auditoria profissional | Verificacao de `antes` e `depois` de usuario no MongoDB |
+| Auditoria profissional | Verificacao de `antes`, `depois` e `usuarioId` do operador autenticado no MongoDB |
 
 ## Bases Usadas
 

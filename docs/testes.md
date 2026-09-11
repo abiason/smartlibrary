@@ -17,6 +17,7 @@ A rotina executa:
 - insercao de fixtures controladas;
 - execucao da aplicacao com entradas simuladas;
 - validacao de emprestimo e devolucao;
+- validacao de busca, alteracao e exclusao/desativacao de cadastros;
 - validacao dos relatorios pela UI;
 - validacao de eventos, logs e auditoria no MongoDB.
 
@@ -43,11 +44,14 @@ A validacao automatizada cobre:
 - compilacao completa com flags C17;
 - aplicacao do schema PostgreSQL do zero;
 - fluxo de emprestimo e devolucao pelo balcao;
+- busca de usuario por CPF;
+- alteracao e desativacao segura de usuario com historico;
+- bloqueio de exclusao de livro vinculado;
 - persistencia de origem `BALCAO`;
 - retorno do exemplar para `DISPONIVEL` apos devolucao;
 - consultas dos menus de relatorios e NoSQL;
 - eventos MongoDB;
-- auditoria MongoDB;
+- auditoria MongoDB de circulacao e cadastros;
 - logs MongoDB.
 
 Testes unitarios granulares em C podem ser adicionados em fase posterior se o projeto ganhar uma biblioteca de testes dedicada.

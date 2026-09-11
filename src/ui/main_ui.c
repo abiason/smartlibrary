@@ -37,7 +37,7 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
 
         switch (option) {
             case 1:
-                cadastro_ui_run(postgres);
+                cadastro_ui_run(postgres, mongo);
                 break;
             case 2:
                 emprestimo_ui_run(postgres, mongo);
@@ -67,5 +67,3 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
         }
     }
 }
-
-

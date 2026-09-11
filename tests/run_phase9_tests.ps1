@@ -92,7 +92,7 @@ $env:POSTGRES_PORT = $PostgresPort
 $env:POSTGRES_DB = $TestDatabase
 $env:POSTGRES_USER = $PostgresUser
 $env:MONGODB_DATABASE = $MongoDatabase
-$inputData = "2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
+$inputData = "2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
 $output = $inputData | & $Binary
 if ($LASTEXITCODE -ne 0) {
     $output | Write-Host
@@ -103,6 +103,10 @@ Assert-True ($output -join "`n").Contains("[OK] Emprestimo realizado") "Fluxo de
 Assert-True ($output -join "`n").Contains("[OK] Devolucao realizada") "Fluxo de devolucao nao confirmou sucesso."
 Assert-True ($output -join "`n").Contains("RELATORIOS") "Menu de relatorios nao foi exercitado."
 Assert-True ($output -join "`n").Contains("NOSQL - EVENTOS, LOGS E AUDITORIA") "Menu NoSQL nao foi exercitado."
+Assert-True ($output -join "`n").Contains("Usuario Teste Fase 9") "Busca de usuario nao retornou fixture esperada."
+Assert-True ($output -join "`n").Contains("[OK] Usuario atualizado.") "Alteracao de usuario nao confirmou sucesso."
+Assert-True ($output -join "`n").Contains("[OK] Usuario desativado.") "Usuario com historico nao foi desativado."
+Assert-True ($output -join "`n").Contains("Livro possui exemplares ou reservas vinculadas.") "Exclusao bloqueada de livro vinculado nao foi validada."
 
 Write-Host "[TEST] Validando estado PostgreSQL..."
 $loanState = Invoke-PsqlScalar $TestDatabase "SELECT origem || ':' || status FROM emprestimo ORDER BY id_emprestimo DESC LIMIT 1;"
@@ -114,6 +118,12 @@ Assert-True ($copyStatus -eq "DISPONIVEL") "Exemplar deveria estar DISPONIVEL ap
 $reportRows = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM livro l LEFT JOIN exemplar e ON e.id_livro = l.id_livro;"
 Assert-True ([int]$reportRows -gt 0) "Relatorio de acervo nao tem dados-base."
 
+$userState = Invoke-PsqlScalar $TestDatabase "SELECT nome || ':' || ativo::text FROM usuario WHERE id_usuario = 1;"
+Assert-True ($userState -eq "Usuario Teste Fase 11:false") "Usuario deveria ter sido alterado e desativado, obtido $userState."
+
+$bookStillExists = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM livro WHERE id_livro = 1;"
+Assert-True ([int]$bookStillExists -eq 1) "Livro vinculado nao deveria ser excluido."
+
 Write-Host "[TEST] Validando documentos MongoDB..."
 $eventCount = Invoke-MongoScalar "db.eventos.countDocuments({tipo:'EMPRESTIMO_REALIZADO', origem:'BALCAO'})"
 Assert-True ([int]$eventCount -ge 1) "Evento EMPRESTIMO_REALIZADO/BALCAO nao foi registrado."
@@ -121,7 +131,10 @@ Assert-True ([int]$eventCount -ge 1) "Evento EMPRESTIMO_REALIZADO/BALCAO nao foi
 $auditCount = Invoke-MongoScalar "db.auditoria.countDocuments({entidade:'emprestimo'})"
 Assert-True ([int]$auditCount -ge 1) "Auditoria de emprestimo nao foi registrada."
 
+$cadastroAuditCount = Invoke-MongoScalar "db.auditoria.countDocuments({entidade:'usuario', acao:{`$in:['ALTERACAO','DESATIVACAO']}})"
+Assert-True ([int]$cadastroAuditCount -ge 2) "Auditoria de alteracao/desativacao de usuario nao foi registrada."
+
 $logCount = Invoke-MongoScalar "db.logs.countDocuments({componente:'main'})"
 Assert-True ([int]$logCount -ge 1) "Logs de sistema nao foram registrados."
 
-Write-Host "[TEST] Fase 9 OK: build, fluxo, relatorios, PostgreSQL e MongoDB validados."
+Write-Host "[TEST] OK: build, cadastros V2, fluxo, relatorios, PostgreSQL e MongoDB validados."

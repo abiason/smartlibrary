@@ -128,6 +128,7 @@ mingw32-make run
 - [Arquitetura](docs/arquitetura.md)
 - [Guia de execucao](docs/guia_execucao.md)
 - [Entrega final](docs/entrega_final.md)
+- [Especificacao V2](docs/especificacao_v2.md)
 - [Resumo das fases](docs/fases.md)
 - [Modelo relacional](docs/modelo_relacional.md)
 - [Modelo NoSQL](docs/modelo_nosql.md)
@@ -162,6 +163,7 @@ smartlibrary/
 |   |-- arquitetura.md
 |   |-- guia_execucao.md
 |   |-- entrega_final.md
+|   |-- especificacao_v2.md
 |   |-- modelo_relacional.md
 |   |-- modelo_nosql.md
 |   |-- dicionario_dados.md
@@ -177,6 +179,7 @@ smartlibrary/
 |-- Makefile
 `-- README.md
 ```
+
 
 
 

@@ -4,12 +4,104 @@
 #include "repositories/cadastro_repository.h"
 
 #include <libpq-fe.h>
+#include <ctype.h>
+#include <string.h>
 #include <stdio.h>
 
 static int has_text(const char *value) {
     return value != NULL && value[0] != '\0';
 }
 
+static int validar_cpf(const char *cpf) {
+    char digits[12];
+    int count = 0;
+    int all_equal = 1;
+    int sum = 0;
+    int first_digit;
+    int second_digit;
+
+    if (cpf == NULL) {
+        return 0;
+    }
+
+    for (const char *p = cpf; *p != '\0'; p++) {
+        if (isdigit((unsigned char)*p)) {
+            if (count >= 11) {
+                return 0;
+            }
+            digits[count++] = *p;
+        } else if (*p != '.' && *p != '-') {
+            return 0;
+        }
+    }
+
+    if (count != 11) {
+        return 0;
+    }
+    digits[11] = '\0';
+
+    for (int i = 1; i < 11; i++) {
+        if (digits[i] != digits[0]) {
+            all_equal = 0;
+            break;
+        }
+    }
+    if (all_equal) {
+        return 0;
+    }
+
+    for (int i = 0; i < 9; i++) {
+        sum += (digits[i] - '0') * (10 - i);
+    }
+    first_digit = 11 - (sum % 11);
+    if (first_digit >= 10) {
+        first_digit = 0;
+    }
+    if (first_digit != digits[9] - '0') {
+        return 0;
+    }
+
+    sum = 0;
+    for (int i = 0; i < 10; i++) {
+        sum += (digits[i] - '0') * (11 - i);
+    }
+    second_digit = 11 - (sum % 11);
+    if (second_digit >= 10) {
+        second_digit = 0;
+    }
+
+    return second_digit == digits[10] - '0';
+}
+
+static int validar_email_opcional(const char *email) {
+    const char *at;
+    const char *dot;
+
+    if (!has_text(email)) {
+        return 1;
+    }
+
+    at = strchr(email, '@');
+    if (at == NULL || at == email || strchr(at + 1, '@') != NULL) {
+        return 0;
+    }
+
+    dot = strchr(at + 1, '.');
+    return dot != NULL && dot[1] != '\0';
+}
+
+static int validar_livro(const Livro *livro) {
+    if (livro == NULL || !has_text(livro->titulo)) {
+        return 0;
+    }
+    if (livro->ano_publicacao != 0 && (livro->ano_publicacao < 1450 || livro->ano_publicacao > 2100)) {
+        return 0;
+    }
+    if (livro->edicao < 0) {
+        return 0;
+    }
+    return 1;
+}
 static int has_postgres(PostgresConnection *postgres) {
     return postgres != NULL && postgres->conn != NULL;
 }
@@ -69,7 +161,15 @@ static void audit_int_id(MongoConnection *mongo, const char *entidade, int id, c
 
 int cadastro_service_criar_usuario(PostgresConnection *postgres, const Usuario *usuario) {
     if (!has_postgres(postgres) || usuario == NULL || !has_text(usuario->nome) || !has_text(usuario->cpf) || !has_text(usuario->senha_hash) || usuario->perfil_id <= 0) {
-        fprintf(stderr, "[ERRO] Usuario invalido. Informe nome, CPF, senha_hash e perfil valido.\n");
+        fprintf(stderr, "[ERRO] Usuario invalido. Informe nome, CPF, senha e perfil valido.\n");
+        return 0;
+    }
+    if (!validar_cpf(usuario->cpf)) {
+        fprintf(stderr, "[ERRO] CPF invalido. Informe um CPF valido com 11 digitos.\n");
+        return 0;
+    }
+    if (!validar_email_opcional(usuario->email)) {
+        fprintf(stderr, "[ERRO] E-mail invalido.\n");
         return 0;
     }
 
@@ -93,6 +193,11 @@ int cadastro_service_atualizar_usuario(PostgresConnection *postgres, MongoConnec
         fprintf(stderr, "[ERRO] Usuario invalido para alteracao.\n");
         return 0;
     }
+    if (!validar_email_opcional(usuario->email)) {
+        fprintf(stderr, "[ERRO] E-mail invalido.\n");
+        return 0;
+    }
+
     char antes[AUDIT_SNAPSHOT_SIZE];
     char depois[AUDIT_SNAPSHOT_SIZE];
     read_audit_snapshot(postgres, "usuario", usuario->id, antes, sizeof(antes));
@@ -297,8 +402,8 @@ int cadastro_service_excluir_genero(PostgresConnection *postgres, MongoConnectio
 }
 
 int cadastro_service_criar_livro(PostgresConnection *postgres, const Livro *livro) {
-    if (!has_postgres(postgres) || livro == NULL || !has_text(livro->titulo)) {
-        fprintf(stderr, "[ERRO] Livro invalido. Informe o titulo.\n");
+    if (!has_postgres(postgres) || !validar_livro(livro)) {
+        fprintf(stderr, "[ERRO] Livro invalido. Informe titulo, ano entre 1450 e 2100 e edicao nao negativa.\n");
         return 0;
     }
     return cadastro_repository_criar_livro(postgres->conn, livro);
@@ -317,8 +422,8 @@ void cadastro_service_buscar_livros(PostgresConnection *postgres, const char *te
 }
 
 int cadastro_service_atualizar_livro(PostgresConnection *postgres, MongoConnection *mongo, const Livro *livro) {
-    if (!has_postgres(postgres) || livro == NULL || livro->id <= 0 || !has_text(livro->titulo)) {
-        fprintf(stderr, "[ERRO] Livro invalido para alteracao.\n");
+    if (!has_postgres(postgres) || livro == NULL || livro->id <= 0 || !validar_livro(livro)) {
+        fprintf(stderr, "[ERRO] Livro invalido para alteracao. Verifique titulo, ano e edicao.\n");
         return 0;
     }
     char antes[AUDIT_SNAPSHOT_SIZE];
@@ -353,6 +458,77 @@ int cadastro_service_excluir_livro(PostgresConnection *postgres, MongoConnection
     return 1;
 }
 
+int cadastro_service_vincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id) {
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    if (!has_postgres(postgres) || livro_id <= 0 || autor_id <= 0) {
+        fprintf(stderr, "[ERRO] Livro ou autor invalido para vinculacao.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, antes, sizeof(antes));
+    if (!cadastro_repository_vincular_livro_autor(postgres->conn, livro_id, autor_id)) {
+        printf("[ERRO] Vinculo livro/autor nao criado. Verifique IDs ou vinculo existente.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    printf("[OK] Autor vinculado ao livro.\n");
+    return 1;
+}
+
+int cadastro_service_desvincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id) {
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    if (!has_postgres(postgres) || livro_id <= 0 || autor_id <= 0) {
+        fprintf(stderr, "[ERRO] Livro ou autor invalido para desvinculacao.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, antes, sizeof(antes));
+    if (!cadastro_repository_desvincular_livro_autor(postgres->conn, livro_id, autor_id)) {
+        printf("[ERRO] Vinculo livro/autor nao removido.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    printf("[OK] Autor desvinculado do livro.\n");
+    return 1;
+}
+
+int cadastro_service_vincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id) {
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    if (!has_postgres(postgres) || livro_id <= 0 || genero_id <= 0) {
+        fprintf(stderr, "[ERRO] Livro ou genero invalido para vinculacao.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, antes, sizeof(antes));
+    if (!cadastro_repository_vincular_livro_genero(postgres->conn, livro_id, genero_id)) {
+        printf("[ERRO] Vinculo livro/genero nao criado. Verifique IDs ou vinculo existente.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    printf("[OK] Genero vinculado ao livro.\n");
+    return 1;
+}
+
+int cadastro_service_desvincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id) {
+    char antes[AUDIT_SNAPSHOT_SIZE];
+    char depois[AUDIT_SNAPSHOT_SIZE];
+    if (!has_postgres(postgres) || livro_id <= 0 || genero_id <= 0) {
+        fprintf(stderr, "[ERRO] Livro ou genero invalido para desvinculacao.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, antes, sizeof(antes));
+    if (!cadastro_repository_desvincular_livro_genero(postgres->conn, livro_id, genero_id)) {
+        printf("[ERRO] Vinculo livro/genero nao removido.\n");
+        return 0;
+    }
+    read_audit_snapshot(postgres, "livro", livro_id, depois, sizeof(depois));
+    audit_int_id(mongo, "livro", livro_id, "ALTERACAO", antes, depois);
+    printf("[OK] Genero desvinculado do livro.\n");
+    return 1;
+}
 int cadastro_service_criar_exemplar(PostgresConnection *postgres, const Exemplar *exemplar) {
     if (!has_postgres(postgres) || exemplar == NULL || exemplar->livro_id <= 0 || !has_text(exemplar->codigo_barras)) {
         fprintf(stderr, "[ERRO] Exemplar invalido. Informe livro e codigo de barras.\n");
@@ -378,6 +554,11 @@ int cadastro_service_atualizar_exemplar(PostgresConnection *postgres, MongoConne
         fprintf(stderr, "[ERRO] Exemplar invalido para alteracao.\n");
         return 0;
     }
+    if (cadastro_repository_exemplar_tem_emprestimo_aberto(postgres->conn, exemplar->id)) {
+        printf("[ERRO] Exemplar com emprestimo aberto nao pode ser alterado manualmente. Faca a devolucao primeiro.\n");
+        return 0;
+    }
+
     char antes[AUDIT_SNAPSHOT_SIZE];
     char depois[AUDIT_SNAPSHOT_SIZE];
     read_audit_snapshot(postgres, "exemplar", exemplar->id, antes, sizeof(antes));

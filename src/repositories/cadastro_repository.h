@@ -41,11 +41,16 @@ PGresult *cadastro_repository_listar_livros(PGconn *conn);
 PGresult *cadastro_repository_buscar_livros(PGconn *conn, const char *termo);
 int cadastro_repository_atualizar_livro(PGconn *conn, const Livro *livro);
 int cadastro_repository_excluir_livro(PGconn *conn, int livro_id, char *motivo, int motivo_size);
+int cadastro_repository_vincular_livro_autor(PGconn *conn, int livro_id, int autor_id);
+int cadastro_repository_desvincular_livro_autor(PGconn *conn, int livro_id, int autor_id);
+int cadastro_repository_vincular_livro_genero(PGconn *conn, int livro_id, int genero_id);
+int cadastro_repository_desvincular_livro_genero(PGconn *conn, int livro_id, int genero_id);
 
 int cadastro_repository_criar_exemplar(PGconn *conn, const Exemplar *exemplar);
 PGresult *cadastro_repository_listar_exemplares(PGconn *conn);
 PGresult *cadastro_repository_buscar_exemplares(PGconn *conn, const char *termo);
 int cadastro_repository_atualizar_exemplar(PGconn *conn, const Exemplar *exemplar);
+int cadastro_repository_exemplar_tem_emprestimo_aberto(PGconn *conn, int exemplar_id);
 int cadastro_repository_remover_ou_inativar_exemplar(PGconn *conn, int exemplar_id, char *acao, int acao_size);
 
 #endif

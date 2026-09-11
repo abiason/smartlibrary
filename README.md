@@ -8,7 +8,7 @@ O SmartLibrary organiza cadastros de biblioteca, circulacao de exemplares, reser
 
 ## Escopo Entregue
 
-Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 de cadastros, auditoria profissional e seguranca por perfis:
+Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 de cadastros, auditoria profissional, seguranca por perfis e regras de negocio reforcadas:
 
 - fundacao do projeto em C17;
 - configuracao por variaveis de ambiente;
@@ -21,6 +21,8 @@ Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 d
 - auditoria antes/depois real em documentos MongoDB para manutencao de cadastros;
 - login com senha armazenada por hash BCrypt via PostgreSQL pgcrypto;
 - permissoes por perfil para administrador, bibliotecario e usuario;
+- validacao de CPF, e-mail, dados editoriais e bloqueios operacionais;
+- associacao de livros com autores e generos pela aplicacao;
 - emprestimos, devolucoes e renovacoes transacionais;
 - reservas com criacao, cancelamento, atendimento, expiracao e listagem;
 - Self Checkout com identificacao por CPF, operacoes de circulacao, consultas e pesquisa;
@@ -103,7 +105,7 @@ $env:POSTGRES_PASSWORD='sua_senha'
 mingw32-make test
 ```
 
-O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, cadastros V2, auditoria antes/depois, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL.
+O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL.
 
 ## Execucao
 

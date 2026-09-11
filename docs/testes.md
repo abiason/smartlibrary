@@ -20,6 +20,7 @@ A rotina executa:
 - validacao de busca, alteracao e exclusao/desativacao de cadastros;
 - validacao de snapshots antes/depois em auditoria MongoDB;
 - validacao de login administrativo e bloqueio de acesso por perfil;
+- validacao de regras reforcadas da Fase 14;
 - validacao dos relatorios pela UI;
 - validacao de eventos, logs e auditoria no MongoDB.
 
@@ -56,6 +57,9 @@ A validacao automatizada cobre:
 - auditoria MongoDB de circulacao e cadastros;
 - conteudo antes/depois da alteracao e desativacao de usuario;
 - login com administrador e bloqueio de bibliotecario em cadastros administrativos;
+- rejeicao de CPF invalido no cadastro;
+- bloqueio de alteracao manual de exemplar emprestado;
+- persistencia de vinculos livro/autor e livro/genero;
 - logs MongoDB.
 
 Testes unitarios granulares em C podem ser adicionados em fase posterior se o projeto ganhar uma biblioteca de testes dedicada.

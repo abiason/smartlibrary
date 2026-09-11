@@ -55,7 +55,7 @@ static void criar_usuario(PostgresConnection *postgres) {
     input_read_line("CPF: ", usuario.cpf, sizeof(usuario.cpf));
     input_read_line("E-mail: ", usuario.email, sizeof(usuario.email));
     input_read_line("Telefone: ", usuario.telefone, sizeof(usuario.telefone));
-    input_read_line("Senha hash: ", usuario.senha_hash, sizeof(usuario.senha_hash));
+    input_read_line("Senha: ", usuario.senha_hash, sizeof(usuario.senha_hash));
     input_read_int("ID do perfil: ", &usuario.perfil_id);
     input_read_int("Ativo? 1=sim 0=nao: ", &ativo);
     input_read_int("Bloqueado? 1=sim 0=nao: ", &bloqueado);
@@ -247,6 +247,41 @@ static void excluir_ou_desativar(PostgresConnection *postgres, MongoConnection *
     }
 }
 
+static void gerenciar_vinculos_livro(PostgresConnection *postgres, MongoConnection *mongo) {
+    int option = 0;
+    int livro_id = 0;
+    int related_id = 0;
+
+    printf("\n1 - Vincular autor ao livro\n");
+    printf("2 - Desvincular autor do livro\n");
+    printf("3 - Vincular genero ao livro\n");
+    printf("4 - Desvincular genero do livro\n");
+    input_read_int("Opcao: ", &option);
+    input_read_int("ID do livro: ", &livro_id);
+
+    switch (option) {
+        case 1:
+            input_read_int("ID do autor: ", &related_id);
+            cadastro_service_vincular_livro_autor(postgres, mongo, livro_id, related_id);
+            break;
+        case 2:
+            input_read_int("ID do autor: ", &related_id);
+            cadastro_service_desvincular_livro_autor(postgres, mongo, livro_id, related_id);
+            break;
+        case 3:
+            input_read_int("ID do genero: ", &related_id);
+            cadastro_service_vincular_livro_genero(postgres, mongo, livro_id, related_id);
+            break;
+        case 4:
+            input_read_int("ID do genero: ", &related_id);
+            cadastro_service_desvincular_livro_genero(postgres, mongo, livro_id, related_id);
+            break;
+        default:
+            printf("[ERRO] Opcao invalida.\n");
+            break;
+    }
+}
+
 static void print_menu(void) {
     printf("\n===================================\n");
     printf("CADASTROS ADMINISTRATIVOS\n");
@@ -256,6 +291,7 @@ static void print_menu(void) {
     printf("3 - Buscar cadastro\n");
     printf("4 - Alterar cadastro\n");
     printf("5 - Excluir ou desativar cadastro\n");
+    printf("6 - Gerenciar vinculos de livro\n");
     printf("0 - Voltar\n");
 }
 
@@ -286,6 +322,9 @@ void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
                 break;
             case 5:
                 excluir_ou_desativar(postgres, mongo);
+                break;
+            case 6:
+                gerenciar_vinculos_livro(postgres, mongo);
                 break;
             case 0:
                 printf("[INFO] Voltando ao menu principal.\n");

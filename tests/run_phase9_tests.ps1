@@ -75,14 +75,31 @@ VALUES (9001, 'Bibliotecario Teste Fase 13', '111.111.111-11', 'bibliotecario.fa
 INSERT INTO usuario (nome, cpf, email, telefone, senha_hash, id_perfil, ativo, bloqueado)
 VALUES ('Usuario Teste Fase 9', '900.000.000-01', 'fase9@example.com', '11999990000', 'hash-teste', 1, true, false);
 
-INSERT INTO editora (nome, cidade, pais)
-VALUES ('Editora Teste Fase 9', 'Sao Paulo', 'Brasil');
+INSERT INTO editora (id_editora, nome, cidade, pais)
+VALUES (1, 'Editora Teste Fase 9', 'Sao Paulo', 'Brasil');
 
-INSERT INTO livro (isbn, titulo, ano_publicacao, id_editora, idioma, descricao)
-VALUES ('ISBN-F9-001', 'Livro Teste Fase 9', 2026, 1, 'Portugues', 'Fixture automatizada da Fase 9.');
+INSERT INTO autor (id_autor, nome, nacionalidade)
+VALUES (1, 'Autor Teste Fase 14', 'Brasil');
 
-INSERT INTO exemplar (id_livro, codigo_barras, rfid, status, localizacao)
-VALUES (1, 'F9-EX-001', 'RFID-F9-001', 'DISPONIVEL', 'Teste');
+INSERT INTO genero (id_genero, nome, descricao)
+VALUES (1, 'Genero Teste Fase 14', 'Validacao automatizada de vinculo.');
+
+INSERT INTO livro (id_livro, isbn, titulo, ano_publicacao, id_editora, idioma, descricao)
+VALUES (1, 'ISBN-F9-001', 'Livro Teste Fase 9', 2026, 1, 'Portugues', 'Fixture automatizada da Fase 9.');
+
+INSERT INTO exemplar (id_exemplar, id_livro, codigo_barras, rfid, status, localizacao)
+VALUES (1, 1, 'F9-EX-001', 'RFID-F9-001', 'DISPONIVEL', 'Teste');
+
+INSERT INTO exemplar (id_exemplar, id_livro, codigo_barras, rfid, status, localizacao)
+VALUES (2, 1, 'F14-EX-002', 'RFID-F14-002', 'EMPRESTADO', 'Teste');
+
+WITH emprestimo_aberto AS (
+    INSERT INTO emprestimo (id_usuario, data_prevista_devolucao, status, origem)
+    VALUES (1, CURRENT_DATE + INTERVAL '7 days', 'ABERTO', 'BALCAO')
+    RETURNING id_emprestimo
+)
+INSERT INTO emprestimo_item (id_emprestimo, id_exemplar)
+SELECT id_emprestimo, 2 FROM emprestimo_aberto;
 "@
 Invoke-Psql @("-d", $TestDatabase, "-v", "ON_ERROR_STOP=1", "-c", $fixtureSql)
 
@@ -98,7 +115,7 @@ $env:POSTGRES_PORT = $PostgresPort
 $env:POSTGRES_DB = $TestDatabase
 $env:POSTGRES_USER = $PostgresUser
 $env:MONGODB_DATABASE = $MongoDatabase
-$inputData = "000.000.000-00`nadmin-fase13`n2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
+$inputData = "000.000.000-00`nadmin-fase13`n2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n1`n1`nUsuario CPF Invalido`n111.111.111-11`ninvalido@example.com`n11999992222`nteste123`n1`n1`n0`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n4`n6`n2`nF14-EX-002B`nRFID-F14-002B`n1`nTeste bloqueado`n6`n1`n1`n1`n6`n3`n1`n1`n3`n5`nAutor Teste Fase 14`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
 $output = $inputData | & $Binary
 if ($LASTEXITCODE -ne 0) {
     $output | Write-Host
@@ -114,6 +131,10 @@ Assert-True ($output -join "`n").Contains("[OK] Usuario atualizado.") "Alteracao
 Assert-True ($output -join "`n").Contains("[OK] Usuario desativado.") "Usuario com historico nao foi desativado."
 Assert-True ($output -join "`n").Contains("Livro possui exemplares ou reservas vinculadas.") "Exclusao bloqueada de livro vinculado nao foi validada."
 Assert-True ($output -join "`n").Contains("Login realizado: Administrador Teste Fase 13 (ADMINISTRADOR).") "Login administrativo nao foi validado."
+Assert-True ($output -join "`n").Contains("Exemplar com emprestimo aberto nao pode ser alterado manualmente") "Alteracao manual de exemplar emprestado nao foi bloqueada."
+Assert-True ($output -join "`n").Contains("[OK] Autor vinculado ao livro.") "Vinculo livro/autor nao foi validado."
+Assert-True ($output -join "`n").Contains("[OK] Genero vinculado ao livro.") "Vinculo livro/genero nao foi validado."
+Assert-True ($output -join "`n").Contains("Autor Teste Fase 14") "Busca de livro por autor nao retornou resultado."
 
 Write-Host "[TEST] Validando bloqueio por perfil..."
 $restrictedInput = "111.111.111-11`nbiblio-fase13`n1`n0`n"
@@ -140,6 +161,18 @@ Assert-True ($userState -eq "Usuario Teste Fase 11:false") "Usuario deveria ter 
 $bookStillExists = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM livro WHERE id_livro = 1;"
 Assert-True ([int]$bookStillExists -eq 1) "Livro vinculado nao deveria ser excluido."
 
+$invalidCpfUser = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM usuario WHERE nome = 'Usuario CPF Invalido';"
+Assert-True ([int]$invalidCpfUser -eq 0) "Usuario com CPF invalido nao deveria ser inserido."
+
+$authorLink = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM livro_autor WHERE id_livro = 1 AND id_autor = 1;"
+Assert-True ([int]$authorLink -eq 1) "Vinculo livro/autor nao foi persistido."
+
+$genreLink = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM livro_genero WHERE id_livro = 1 AND id_genero = 1;"
+Assert-True ([int]$genreLink -eq 1) "Vinculo livro/genero nao foi persistido."
+
+$blockedCopyCode = Invoke-PsqlScalar $TestDatabase "SELECT codigo_barras FROM exemplar WHERE id_exemplar = 2;"
+Assert-True ($blockedCopyCode -eq "F14-EX-002") "Exemplar emprestado nao deveria ter sido alterado manualmente."
+
 Write-Host "[TEST] Validando documentos MongoDB..."
 $eventCount = Invoke-MongoScalar "db.eventos.countDocuments({tipo:'EMPRESTIMO_REALIZADO', origem:'BALCAO'})"
 Assert-True ([int]$eventCount -ge 1) "Evento EMPRESTIMO_REALIZADO/BALCAO nao foi registrado."
@@ -165,4 +198,4 @@ Assert-True ([int]$logCount -ge 1) "Logs de sistema nao foram registrados."
 $authLogCount = Invoke-MongoScalar "db.logs.countDocuments({componente:'auth', mensagem:'Login realizado com sucesso.'})"
 Assert-True ([int]$authLogCount -ge 2) "Logs de autenticacao nao foram registrados."
 
-Write-Host "[TEST] OK: build, login/perfis, cadastros V2, fluxo, relatorios, PostgreSQL e MongoDB validados."
+Write-Host "[TEST] OK: build, login/perfis, regras Fase 14, cadastros V2, fluxo, relatorios, PostgreSQL e MongoDB validados."

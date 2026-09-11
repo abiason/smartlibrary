@@ -387,13 +387,74 @@ PGresult *cadastro_repository_listar_livros(PGconn *conn) {
 PGresult *cadastro_repository_buscar_livros(PGconn *conn, const char *termo) {
     const char *params[1] = { termo };
     return exec_select_params(conn,
-        "SELECT l.id_livro, COALESCE(l.isbn, '') AS isbn, l.titulo, COALESCE(e.nome, '') AS editora, COALESCE(l.ano_publicacao::text, '') AS ano "
-        "FROM livro l LEFT JOIN editora e ON e.id_editora = l.id_editora "
+        "SELECT l.id_livro, COALESCE(l.isbn, '') AS isbn, l.titulo, COALESCE(e.nome, '') AS editora, "
+        "COALESCE(l.ano_publicacao::text, '') AS ano, "
+        "COALESCE(string_agg(DISTINCT a.nome, ', '), '') AS autores, "
+        "COALESCE(string_agg(DISTINCT g.nome, ', '), '') AS generos "
+        "FROM livro l "
+        "LEFT JOIN editora e ON e.id_editora = l.id_editora "
+        "LEFT JOIN livro_autor la ON la.id_livro = l.id_livro "
+        "LEFT JOIN autor a ON a.id_autor = la.id_autor "
+        "LEFT JOIN livro_genero lg ON lg.id_livro = l.id_livro "
+        "LEFT JOIN genero g ON g.id_genero = lg.id_genero "
         "WHERE l.id_livro::text = $1 OR l.isbn = $1 OR l.titulo ILIKE '%' || $1 || '%' "
+        "OR e.nome ILIKE '%' || $1 || '%' OR a.nome ILIKE '%' || $1 || '%' OR g.nome ILIKE '%' || $1 || '%' "
+        "GROUP BY l.id_livro, l.isbn, l.titulo, e.nome, l.ano_publicacao "
         "ORDER BY l.id_livro",
         1, params);
 }
 
+int cadastro_repository_vincular_livro_autor(PGconn *conn, int livro_id, int autor_id) {
+    char livro[16];
+    char autor[16];
+    const char *params[2];
+    snprintf(livro, sizeof(livro), "%d", livro_id);
+    snprintf(autor, sizeof(autor), "%d", autor_id);
+    params[0] = livro;
+    params[1] = autor;
+    return exec_command_ok(conn,
+        "INSERT INTO livro_autor (id_livro, id_autor) VALUES ($1::integer, $2::integer) ON CONFLICT DO NOTHING",
+        2, params);
+}
+
+int cadastro_repository_desvincular_livro_autor(PGconn *conn, int livro_id, int autor_id) {
+    char livro[16];
+    char autor[16];
+    const char *params[2];
+    snprintf(livro, sizeof(livro), "%d", livro_id);
+    snprintf(autor, sizeof(autor), "%d", autor_id);
+    params[0] = livro;
+    params[1] = autor;
+    return exec_command_ok(conn,
+        "DELETE FROM livro_autor WHERE id_livro = $1::integer AND id_autor = $2::integer",
+        2, params);
+}
+
+int cadastro_repository_vincular_livro_genero(PGconn *conn, int livro_id, int genero_id) {
+    char livro[16];
+    char genero[16];
+    const char *params[2];
+    snprintf(livro, sizeof(livro), "%d", livro_id);
+    snprintf(genero, sizeof(genero), "%d", genero_id);
+    params[0] = livro;
+    params[1] = genero;
+    return exec_command_ok(conn,
+        "INSERT INTO livro_genero (id_livro, id_genero) VALUES ($1::integer, $2::integer) ON CONFLICT DO NOTHING",
+        2, params);
+}
+
+int cadastro_repository_desvincular_livro_genero(PGconn *conn, int livro_id, int genero_id) {
+    char livro[16];
+    char genero[16];
+    const char *params[2];
+    snprintf(livro, sizeof(livro), "%d", livro_id);
+    snprintf(genero, sizeof(genero), "%d", genero_id);
+    params[0] = livro;
+    params[1] = genero;
+    return exec_command_ok(conn,
+        "DELETE FROM livro_genero WHERE id_livro = $1::integer AND id_genero = $2::integer",
+        2, params);
+}
 int cadastro_repository_atualizar_livro(PGconn *conn, const Livro *livro) {
     char id[16];
     char ano_publicacao[16];
@@ -475,6 +536,17 @@ PGresult *cadastro_repository_buscar_exemplares(PGconn *conn, const char *termo)
         1, params);
 }
 
+int cadastro_repository_exemplar_tem_emprestimo_aberto(PGconn *conn, int exemplar_id) {
+    char id[16];
+    const char *params[1];
+    snprintf(id, sizeof(id), "%d", exemplar_id);
+    params[0] = id;
+    return scalar_int(conn,
+        "SELECT COUNT(*) FROM emprestimo_item ei "
+        "INNER JOIN emprestimo e ON e.id_emprestimo = ei.id_emprestimo "
+        "WHERE ei.id_exemplar = $1::integer AND ei.data_devolucao IS NULL AND e.status = 'ABERTO'",
+        1, params) > 0;
+}
 int cadastro_repository_atualizar_exemplar(PGconn *conn, const Exemplar *exemplar) {
     char id[16];
     const char *params[5];

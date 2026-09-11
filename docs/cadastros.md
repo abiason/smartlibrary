@@ -1,6 +1,6 @@
 # Cadastros
 
-A Fase 3 implementou os cadastros administrativos basicos para as entidades principais do acervo e dos usuarios. A Fase 11 amplia esse modulo com manutencao completa dos registros.
+A Fase 3 implementou os cadastros administrativos basicos para as entidades principais do acervo e dos usuarios. A Fase 11 amplia esse modulo com manutencao completa dos registros. A Fase 14 reforca validacoes, buscas e vinculos bibliograficos.
 
 ## Entidades Atendidas
 
@@ -19,9 +19,20 @@ As buscas aceitam identificadores ou termos textuais relevantes:
 
 - usuario: ID, CPF ou nome;
 - autor, editora e genero: ID ou nome;
-- livro: ID, ISBN ou titulo;
+- livro: ID, ISBN, titulo, editora, autor ou genero;
 - exemplar: ID, codigo de barras, RFID ou titulo do livro.
 
+
+## Vinculos Bibliograficos
+
+O menu de cadastros permite vincular e desvincular livros de autores e generos. As operacoes usam as tabelas associativas `livro_autor` e `livro_genero`, respeitam chaves estrangeiras e registram auditoria do livro alterado.
+
+## Validacoes Da Fase 14
+
+- CPF de usuario e validado pelos digitos verificadores no cadastro.
+- E-mail de usuario e validado quando informado.
+- Livro exige titulo, ano entre 1450 e 2100 quando informado, e edicao nao negativa.
+- Exemplar com emprestimo aberto nao pode ser alterado manualmente; a devolucao deve ocorrer pelo fluxo de circulacao.
 ## Alteracao
 
 As telas de alteracao coletam novamente os campos editaveis da entidade e enviam os dados para services e repositories com SQL parametrizado.
@@ -55,4 +66,4 @@ Alteracoes, exclusoes e desativacoes bem-sucedidas registram documentos na colec
 
 - A UI nao possui SQL.
 - Entradas do operador nao sao concatenadas em consultas.
-- Senhas nao sao coletadas em texto puro nesta fase; o cadastro recebe o campo `senha_hash` na criacao.
+- Senhas sao coletadas como senha operacional e armazenadas como hash BCrypt no campo `senha_hash`.

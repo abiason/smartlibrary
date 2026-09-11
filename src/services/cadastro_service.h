@@ -39,6 +39,10 @@ void cadastro_service_listar_livros(PostgresConnection *postgres);
 void cadastro_service_buscar_livros(PostgresConnection *postgres, const char *termo);
 int cadastro_service_atualizar_livro(PostgresConnection *postgres, MongoConnection *mongo, const Livro *livro);
 int cadastro_service_excluir_livro(PostgresConnection *postgres, MongoConnection *mongo, int livro_id);
+int cadastro_service_vincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id);
+int cadastro_service_desvincular_livro_autor(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int autor_id);
+int cadastro_service_vincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id);
+int cadastro_service_desvincular_livro_genero(PostgresConnection *postgres, MongoConnection *mongo, int livro_id, int genero_id);
 
 int cadastro_service_criar_exemplar(PostgresConnection *postgres, const Exemplar *exemplar);
 void cadastro_service_listar_exemplares(PostgresConnection *postgres);

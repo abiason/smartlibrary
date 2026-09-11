@@ -4,7 +4,7 @@ Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com Postg
 
 ## Escopo Atual
 
-Esta entrega implementa as Fases 1 e 2 da especificacao:
+Esta entrega implementa as Fases 1, 2 e 3 da especificacao:
 
 - estrutura inicial do projeto;
 - configuracao por variaveis de ambiente;
@@ -16,9 +16,13 @@ Esta entrega implementa as Fases 1 e 2 da especificacao:
 - constraints, indexes e seed inicial;
 - modelo documental MongoDB com indexes e validators;
 - structs C das entidades principais;
-- dicionario de dados e diagramas C4 Componentes/MER.
+- dicionario de dados e diagramas C4 Componentes/MER;
+- menu administrativo de cadastros;
+- repositories com SQL parametrizado para cadastros;
+- services com validacoes basicas;
+- criacao e listagem de usuarios, autores, editoras, generos, livros e exemplares.
 
-Cadastros, emprestimos, reservas, Self Checkout completo e relatorios pertencem a fases futuras.
+Emprestimos, reservas, Self Checkout completo e relatorios pertencem a fases futuras.
 
 ## Dependencias
 
@@ -89,6 +93,14 @@ smartlibrary/
 |   |   |-- postgres.h
 |   |   |-- mongodb.c
 |   |   `-- mongodb.h
+|   |-- repositories/
+|   |   `-- cadastro_repository.c / cadastro_repository.h
+|   |-- services/
+|   |   `-- cadastro_service.c / cadastro_service.h
+|   |-- ui/
+|   |   `-- cadastro_ui.c / cadastro_ui.h
+|   |-- utils/
+|   |   `-- input.c / input.h
 |   `-- models/
 |       |-- usuario.c / usuario.h
 |       |-- autor.c / autor.h
@@ -112,6 +124,7 @@ smartlibrary/
 |   |-- modelo_relacional.md
 |   |-- modelo_nosql.md
 |   |-- dicionario_dados.md
+|   |-- cadastros.md
 |   `-- diagrams/
 |       |-- c4_contexto.md
 |       |-- c4_containers.md

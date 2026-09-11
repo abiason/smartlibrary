@@ -11,14 +11,15 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - Config: leitura de configuracoes do ambiente.
 - Events: registro de eventos, logs e auditoria no MongoDB.
 
-## Decisoes Das Fases 1 E 2
+## Decisoes Das Fases 1, 2 E 3
 
 - PostgreSQL e a fonte principal da verdade transacional.
 - MongoDB fica reservado para eventos, logs, auditoria e telemetria.
 - A configuracao inicial usa variaveis de ambiente com valores padrao seguros para desenvolvimento local.
 - As conexoes sao abertas na inicializacao e encerradas antes do fim do processo.
 - O schema relacional, o modelo documental, o MER e o dicionario de dados foram criados em conjunto.
-- Nenhuma regra de cadastro, emprestimo, reserva, Self Checkout completo ou relatorio foi implementada nesta fase.
+- A Fase 3 adiciona UI administrativa, services e repositories para cadastros basicos.
+- Nenhuma regra de emprestimo, reserva, Self Checkout completo ou relatorio foi implementada nesta fase.
 
 ## Diagramas
 

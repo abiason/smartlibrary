@@ -2,49 +2,46 @@
 
 Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com PostgreSQL e MongoDB.
 
-## Escopo Atual
+## Visao Geral
 
-Esta entrega implementa as Fases 1 a 9 da especificacao:
+O SmartLibrary organiza cadastros de biblioteca, circulacao de exemplares, reservas, autoatendimento, trilha NoSQL, relatorios e testes automatizados. O PostgreSQL e usado como fonte transacional principal e o MongoDB registra eventos, logs e auditoria.
 
-- estrutura inicial do projeto;
+## Escopo Entregue
+
+Esta entrega implementa as Fases 1 a 10 da especificacao:
+
+- fundacao do projeto em C17;
 - configuracao por variaveis de ambiente;
-- conexao PostgreSQL com libpq;
-- conexao MongoDB com MongoDB C Driver;
-- build com Makefile;
-- documentacao em Markdown e Mermaid;
-- schema relacional PostgreSQL, constraints, indexes e seed inicial;
-- modelo documental MongoDB com indexes e validators;
-- structs C das entidades principais;
-- dicionario de dados e diagramas C4/MER;
-- menu administrativo de cadastros;
-- criacao e listagem de usuarios, autores, editoras, generos, livros e exemplares;
+- conexoes PostgreSQL/libpq e MongoDB/MongoDB C Driver;
+- schema relacional, constraints, indexes e seed inicial;
+- modelo documental MongoDB com validators e indexes;
+- structs das entidades principais;
+- menus administrativos para usuarios, autores, editoras, generos, livros e exemplares;
 - emprestimos, devolucoes e renovacoes transacionais;
-- bloqueio de exemplar com `SELECT ... FOR UPDATE`;
 - reservas com criacao, cancelamento, atendimento, expiracao e listagem;
-- Self Checkout com identificacao por CPF, emprestimo, devolucao, renovacao, consultas e pesquisa;
-- eventos MongoDB por origem apos operacoes confirmadas;
-- logs operacionais, auditoria e consultas NoSQL pela aplicacao;
-- relatorios operacionais de acervo, atrasos, ranking de livros, origens de emprestimo, reservas e pendencias;
-- testes automatizados integrados com banco isolado para PostgreSQL e MongoDB.
-
-Documentacao final pertence a fase futura.
+- Self Checkout com identificacao por CPF, operacoes de circulacao, consultas e pesquisa;
+- eventos MongoDB por origem, logs operacionais e auditoria;
+- consultas NoSQL pela aplicacao;
+- relatorios operacionais;
+- testes automatizados integrados;
+- documentacao final de arquitetura, execucao, dados, fluxos e fases.
 
 ## Dependencias
 
 - GCC com suporte a C17.
 - pkg-config.
-- PostgreSQL libpq.
+- PostgreSQL com libpq.
+- MongoDB Server.
+- MongoDB Shell (`mongosh`).
 - MongoDB C Driver.
-- GNU Make.
+- GNU Make ou `mingw32-make` no Windows/MSYS2.
 
-No ambiente validado, os pacotes detectados foram:
+No ambiente validado, as bibliotecas sao resolvidas por:
 
 ```sh
 pkg-config --cflags --libs libpq
 pkg-config --cflags --libs mongoc2
 ```
-
-No MSYS2 UCRT64 desta maquina, `mingw32-make` esta disponivel no lugar de `make`.
 
 ## Configuracao
 
@@ -60,7 +57,30 @@ MONGODB_URI=mongodb://localhost:27017
 MONGODB_DATABASE=smartlibrary
 ```
 
+Nao versione senha real no repositorio. Defina `POSTGRES_PASSWORD` apenas no ambiente da sessao.
+
+## Banco De Dados
+
+Crie o banco PostgreSQL `smartlibrary` e aplique os scripts nesta ordem:
+
+```powershell
+$env:PGPASSWORD='sua_senha'
+psql -U postgres -d smartlibrary -f database/postgresql/001_schema.sql
+psql -U postgres -d smartlibrary -f database/postgresql/002_constraints.sql
+psql -U postgres -d smartlibrary -f database/postgresql/003_indexes.sql
+psql -U postgres -d smartlibrary -f database/postgresql/004_seed.sql
+```
+
+Aplique os scripts MongoDB:
+
+```powershell
+mongosh database/mongodb/validators.js
+mongosh database/mongodb/indexes.js
+```
+
 ## Build
+
+No Windows/MSYS2 validado:
 
 ```sh
 mingw32-make
@@ -79,19 +99,45 @@ $env:POSTGRES_PASSWORD='sua_senha'
 mingw32-make test
 ```
 
-O alvo `test` recria os bancos `smartlibrary_test` no PostgreSQL e MongoDB, executa fixtures controladas e valida fluxo, relatorios e documentos NoSQL.
+O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL.
 
 ## Execucao
 
-```sh
-build/smartlibrary.exe
+```powershell
+$env:POSTGRES_PASSWORD='sua_senha'
+.\build\smartlibrary.exe
 ```
 
-ou:
+Ou, depois de configurar a senha no ambiente:
 
 ```sh
 mingw32-make run
 ```
+
+## Menus Principais
+
+- `1 - Cadastros administrativos`
+- `2 - Circulacao`
+- `3 - Reservas`
+- `4 - Self Checkout`
+- `5 - NoSQL: eventos, logs e auditoria`
+- `6 - Relatorios`
+
+## Documentacao
+
+- [Arquitetura](docs/arquitetura.md)
+- [Guia de execucao](docs/guia_execucao.md)
+- [Entrega final](docs/entrega_final.md)
+- [Resumo das fases](docs/fases.md)
+- [Modelo relacional](docs/modelo_relacional.md)
+- [Modelo NoSQL](docs/modelo_nosql.md)
+- [Dicionario de dados](docs/dicionario_dados.md)
+- [Cadastros](docs/cadastros.md)
+- [Emprestimos](docs/emprestimos.md)
+- [Reservas](docs/reservas.md)
+- [Self Checkout](docs/self_checkout.md)
+- [Relatorios](docs/relatorios.md)
+- [Testes](docs/testes.md)
 
 ## Estrutura
 
@@ -102,27 +148,9 @@ smartlibrary/
 |   |-- config/
 |   |-- database/
 |   |-- repositories/
-|   |   |-- cadastro_repository.c / cadastro_repository.h
-|   |   |-- emprestimo_repository.c / emprestimo_repository.h
-|   |   |-- reserva_repository.c / reserva_repository.h
-|   |   |-- self_checkout_repository.c / self_checkout_repository.h
-|   |   `-- relatorio_repository.c / relatorio_repository.h
 |   |-- services/
-|   |   |-- cadastro_service.c / cadastro_service.h
-|   |   |-- emprestimo_service.c / emprestimo_service.h
-|   |   |-- reserva_service.c / reserva_service.h
-|   |   |-- self_checkout_service.c / self_checkout_service.h
-|   |   `-- relatorio_service.c / relatorio_service.h
 |   |-- events/
-|   |   `-- event_service.c / event_service.h
 |   |-- ui/
-|   |   |-- main_ui.c / main_ui.h
-|   |   |-- cadastro_ui.c / cadastro_ui.h
-|   |   |-- emprestimo_ui.c / emprestimo_ui.h
-|   |   |-- reserva_ui.c / reserva_ui.h
-|   |   |-- self_checkout_ui.c / self_checkout_ui.h
-|   |   |-- nosql_ui.c / nosql_ui.h
-|   |   `-- relatorio_ui.c / relatorio_ui.h
 |   |-- utils/
 |   `-- models/
 |-- database/
@@ -132,6 +160,8 @@ smartlibrary/
 |   `-- run_phase9_tests.ps1
 |-- docs/
 |   |-- arquitetura.md
+|   |-- guia_execucao.md
+|   |-- entrega_final.md
 |   |-- modelo_relacional.md
 |   |-- modelo_nosql.md
 |   |-- dicionario_dados.md
@@ -147,3 +177,6 @@ smartlibrary/
 |-- Makefile
 `-- README.md
 ```
+
+
+

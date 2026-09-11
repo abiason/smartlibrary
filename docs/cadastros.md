@@ -13,7 +13,7 @@ A Fase 3 implementa cadastros administrativos basicos para as entidades principa
 
 ## Operacoes
 
-Cada entidade possui fluxo inicial de criacao e listagem. Atualizacao, exclusao logica detalhada, filtros avancados e associacoes muitos-para-muitos entre livros/autores/generos devem evoluir em fases futuras.
+Cada entidade possui fluxo de criacao e listagem. Atualizacao, exclusao logica detalhada, filtros avancados e associacoes muitos-para-muitos entre livros/autores/generos podem evoluir em versoes posteriores.
 
 ## Separacao De Responsabilidades
 
@@ -26,3 +26,4 @@ Cada entidade possui fluxo inicial de criacao e listagem. Atualizacao, exclusao 
 - A UI nao possui SQL.
 - Entradas do operador nao sao concatenadas em consultas.
 - Senhas nao sao coletadas em texto puro nesta fase; o cadastro recebe o campo `senha_hash`.
+

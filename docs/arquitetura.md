@@ -1,6 +1,6 @@
 # Arquitetura
 
-O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entre interface, regras de negocio e persistencia.
+O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entre interface, regras de negocio, persistencia e observabilidade.
 
 ## Camadas
 
@@ -9,13 +9,14 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - Repositories: consultas SQL e persistencia relacional.
 - Database: conexoes com PostgreSQL e MongoDB.
 - Config: leitura de configuracoes do ambiente.
-- Events: registro de eventos, logs e auditoria no MongoDB.
+- Events: registro de eventos, logs, auditoria e consultas documentais no MongoDB.
+- Tests: orquestracao de build, bancos isolados, fixtures e verificacoes automatizadas.
 
-## Decisoes Das Fases 1 A 9
+## Decisoes Das Fases 1 A 10
 
 - PostgreSQL e a fonte principal da verdade transacional.
-- MongoDB fica reservado para eventos, logs, auditoria e telemetria.
-- A configuracao inicial usa variaveis de ambiente com valores padrao seguros para desenvolvimento local.
+- MongoDB complementa a aplicacao com eventos, logs, auditoria e telemetria.
+- A configuracao usa variaveis de ambiente e evita versionar segredos.
 - As conexoes sao abertas na inicializacao e encerradas antes do fim do processo.
 - O schema relacional, o modelo documental, o MER e o dicionario de dados foram criados em conjunto.
 - A Fase 3 adiciona UI administrativa, services e repositories para cadastros basicos.
@@ -25,7 +26,30 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - A Fase 7 amplia a trilha NoSQL com eventos por origem, logs, auditoria e consultas pela aplicacao.
 - A Fase 8 adiciona relatorios operacionais sobre acervo, circulacao, reservas e pendencias.
 - A Fase 9 adiciona testes automatizados integrados com PostgreSQL e MongoDB em bancos isolados.
-- Documentacao final ainda pertence a fase futura.
+- A Fase 10 consolida README, guia de execucao, resumo de entrega e documentacao de apoio.
+
+## Fluxo De Persistencia
+
+1. A UI coleta os dados do usuario no terminal.
+2. A camada de service valida entradas e aciona regras de negocio.
+3. A camada de repository executa SQL parametrizado com `PQexecParams`.
+4. Operacoes criticas de circulacao usam transacao explicita.
+5. Depois da confirmacao relacional, a camada de eventos registra documentos no MongoDB.
+6. Falhas de registro NoSQL geram aviso, mas nao desfazem operacoes ja confirmadas no PostgreSQL.
+
+## Documentos De Apoio
+
+- [Guia de execucao](guia_execucao.md)
+- [Entrega final](entrega_final.md)
+- [Modelo relacional](modelo_relacional.md)
+- [Modelo NoSQL](modelo_nosql.md)
+- [Dicionario de dados](dicionario_dados.md)
+- [Cadastros](cadastros.md)
+- [Emprestimos](emprestimos.md)
+- [Reservas](reservas.md)
+- [Self Checkout](self_checkout.md)
+- [Relatorios](relatorios.md)
+- [Testes](testes.md)
 
 ## Diagramas
 

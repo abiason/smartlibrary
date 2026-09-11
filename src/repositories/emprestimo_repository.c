@@ -139,7 +139,7 @@ int emprestimo_repository_realizar_emprestimo(PGconn *conn, int usuario_id, cons
     }
 
     result = exec_params(conn,
-        "SELECT id_exemplar, id_livro, status FROM exemplar WHERE codigo_barras = $1 FOR UPDATE",
+        "SELECT id_exemplar, id_livro, status FROM exemplar WHERE codigo_barras = $1 OR rfid = $1 FOR UPDATE",
         1, params_codigo);
     if (result == NULL || PQntuples(result) == 0) {
         if (result != NULL) {
@@ -250,7 +250,7 @@ int emprestimo_repository_realizar_devolucao(PGconn *conn, const char *codigo_ba
     }
 
     result = exec_params(conn,
-        "SELECT id_exemplar, status FROM exemplar WHERE codigo_barras = $1 FOR UPDATE",
+        "SELECT id_exemplar, status FROM exemplar WHERE codigo_barras = $1 OR rfid = $1 FOR UPDATE",
         1, params_codigo);
     if (result == NULL || PQntuples(result) == 0) {
         if (result != NULL) {
@@ -454,6 +454,7 @@ PGresult *emprestimo_repository_listar_emprestimos_abertos(PGconn *conn) {
         "ORDER BY e.id_emprestimo, i.id_emprestimo_item",
         0, NULL);
 }
+
 
 
 

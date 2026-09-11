@@ -23,6 +23,10 @@ int input_read_line(const char *prompt, char *buffer, size_t size) {
     length = strlen(buffer);
     if (length > 0 && buffer[length - 1] == '\n') {
         buffer[length - 1] = '\0';
+    } else {
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF) {
+        }
     }
 
     return 1;
@@ -45,3 +49,4 @@ int input_read_int(const char *prompt, int *value) {
     *value = (int)parsed;
     return 1;
 }
+

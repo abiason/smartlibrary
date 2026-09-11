@@ -4,14 +4,14 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 
 ## Camadas
 
-- UI: menus e interacao com usuarios.
+- UI: menus, circulacao administrativa e Self Checkout.
 - Services: regras de negocio e coordenacao de operacoes.
 - Repositories: consultas SQL e persistencia relacional.
 - Database: conexoes com PostgreSQL e MongoDB.
 - Config: leitura de configuracoes do ambiente.
 - Events: registro de eventos, logs e auditoria no MongoDB.
 
-## Decisoes Das Fases 1 A 5
+## Decisoes Das Fases 1 A 6
 
 - PostgreSQL e a fonte principal da verdade transacional.
 - MongoDB fica reservado para eventos, logs, auditoria e telemetria.
@@ -21,7 +21,8 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - A Fase 3 adiciona UI administrativa, services e repositories para cadastros basicos.
 - A Fase 4 adiciona emprestimos, devolucoes e renovacoes transacionais.
 - A Fase 5 adiciona reservas e integra bloqueio de emprestimo/renovacao por reserva ativa de outro usuario.
-- Nenhuma regra de Self Checkout completo ou relatorio foi implementada nesta fase.
+- A Fase 6 adiciona Self Checkout com identificacao de usuario, operacoes de circulacao, consultas e pesquisa de acervo.
+- Relatorios, testes ampliados e documentacao final ainda pertencem a fases futuras.
 
 ## Diagramas
 
@@ -30,10 +31,12 @@ O SmartLibrary segue uma arquitetura em camadas para manter separacao clara entr
 - [C4 Componentes](diagrams/c4_componentes.md)
 - [MER](diagrams/modelo_er.md)
 - [Arquitetura Geral](diagrams/arquitetura_geral.md)
+- [Fluxo Self Checkout](diagrams/fluxo_self_checkout.md)
 - [Fluxo de Emprestimo](diagrams/fluxo_emprestimo.md)
 - [Fluxo de Devolucao](diagrams/fluxo_devolucao.md)
 - [Fluxo de Renovacao](diagrams/fluxo_renovacao.md)
 - [Fluxo de Reserva](diagrams/fluxo_reserva.md)
+- [Sequencia Self Checkout](diagrams/sequencia_self_checkout.md)
 - [Sequencia de Emprestimo](diagrams/sequencia_emprestimo.md)
 - [Sequencia de Devolucao](diagrams/sequencia_devolucao.md)
 - [Sequencia de Renovacao](diagrams/sequencia_renovacao.md)

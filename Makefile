@@ -6,7 +6,7 @@ ifeq ($(OS),Windows_NT)
 TARGET := build/smartlibrary.exe
 endif
 
-SRC := src/main.c src/config/config.c src/database/postgres.c src/database/mongodb.c src/repositories/cadastro_repository.c src/repositories/emprestimo_repository.c src/repositories/reserva_repository.c src/services/cadastro_service.c src/services/emprestimo_service.c src/services/reserva_service.c src/events/event_service.c src/ui/main_ui.c src/ui/cadastro_ui.c src/ui/emprestimo_ui.c src/ui/reserva_ui.c src/utils/input.c src/models/usuario.c src/models/autor.c src/models/editora.c src/models/genero.c src/models/livro.c src/models/exemplar.c src/models/emprestimo.c src/models/reserva.c
+SRC := src/main.c src/config/config.c src/database/postgres.c src/database/mongodb.c src/repositories/cadastro_repository.c src/repositories/emprestimo_repository.c src/repositories/reserva_repository.c src/repositories/self_checkout_repository.c src/services/cadastro_service.c src/services/emprestimo_service.c src/services/reserva_service.c src/services/self_checkout_service.c src/events/event_service.c src/ui/main_ui.c src/ui/cadastro_ui.c src/ui/emprestimo_ui.c src/ui/reserva_ui.c src/ui/self_checkout_ui.c src/utils/input.c src/models/usuario.c src/models/autor.c src/models/editora.c src/models/genero.c src/models/livro.c src/models/exemplar.c src/models/emprestimo.c src/models/reserva.c
 OBJ := $(SRC:src/%.c=build/%.o)
 
 CFLAGS := -std=c17 -Wall -Wextra -Wpedantic
@@ -41,6 +41,7 @@ ifeq ($(OS),Windows_NT)
 else
 	rm -rf build
 endif
+
 
 
 

@@ -3,6 +3,7 @@
 #include "ui/cadastro_ui.h"
 #include "ui/emprestimo_ui.h"
 #include "ui/reserva_ui.h"
+#include "ui/self_checkout_ui.h"
 #include "utils/input.h"
 
 #include <stdio.h>
@@ -14,6 +15,7 @@ static void print_menu(void) {
     printf("1 - Cadastros administrativos\n");
     printf("2 - Circulacao\n");
     printf("3 - Reservas\n");
+    printf("4 - Self Checkout\n");
     printf("0 - Sair\n");
 }
 
@@ -37,6 +39,9 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
             case 3:
                 reserva_ui_run(postgres, mongo);
                 break;
+            case 4:
+                self_checkout_ui_run(postgres, mongo);
+                break;
             case 0:
                 printf("[INFO] Encerrando aplicacao.\n");
                 break;
@@ -46,4 +51,5 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
         }
     }
 }
+
 

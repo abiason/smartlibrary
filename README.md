@@ -8,7 +8,7 @@ O SmartLibrary organiza cadastros de biblioteca, circulacao de exemplares, reser
 
 ## Escopo Entregue
 
-Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 de cadastros, auditoria profissional, seguranca por perfis e regras de negocio reforcadas:
+Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 de cadastros, auditoria profissional, seguranca por perfis, regras de negocio reforcadas e pacote final de avaliacao:
 
 - fundacao do projeto em C17;
 - configuracao por variaveis de ambiente;
@@ -30,7 +30,8 @@ Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 d
 - consultas NoSQL pela aplicacao;
 - relatorios operacionais;
 - testes automatizados integrados;
-- documentacao final de arquitetura, execucao, dados, fluxos e fases.
+- documentacao final de arquitetura, execucao, dados, fluxos e fases;
+- roteiro de apresentacao, checklist de avaliacao e matriz de evidencias de teste.
 
 ## Dependencias
 
@@ -105,7 +106,7 @@ $env:POSTGRES_PASSWORD='sua_senha'
 mingw32-make test
 ```
 
-O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL.
+O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL. A matriz detalhada esta em `docs/evidencias_testes.md`.
 
 ## Execucao
 
@@ -145,6 +146,9 @@ mingw32-make run
 - [Self Checkout](docs/self_checkout.md)
 - [Relatorios](docs/relatorios.md)
 - [Testes](docs/testes.md)
+- [Evidencias de testes](docs/evidencias_testes.md)
+- [Roteiro de apresentacao](docs/roteiro_apresentacao.md)
+- [Checklist de avaliacao](docs/checklist_avaliacao.md)
 
 ## Estrutura
 
@@ -180,6 +184,9 @@ smartlibrary/
 |   |-- self_checkout.md
 |   |-- relatorios.md
 |   |-- testes.md
+|   |-- evidencias_testes.md
+|   |-- roteiro_apresentacao.md
+|   |-- checklist_avaliacao.md
 |   `-- diagrams/
 |-- .env.example
 |-- .gitignore

@@ -63,3 +63,6 @@ A validacao automatizada cobre:
 - logs MongoDB.
 
 Testes unitarios granulares em C podem ser adicionados em fase posterior se o projeto ganhar uma biblioteca de testes dedicada.
+## Evidencias Consolidadas
+
+A Fase 15 adiciona a matriz de evidencias em `docs/evidencias_testes.md`, conectando cada area funcional a uma validacao automatizada ou roteiro de demonstracao.

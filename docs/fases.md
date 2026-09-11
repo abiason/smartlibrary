@@ -16,7 +16,8 @@
 | 12 | Auditoria Profissional | Snapshots antes/depois reais dos cadastros em documentos MongoDB |
 | 13 | Seguranca E Perfis | Login, hash BCrypt via pgcrypto, primeiro acesso e permissoes por perfil |
 | 14 | Regras De Negocio | CPF/e-mail, busca avancada, vinculos livro-autor-genero e bloqueios operacionais |
+| 15 | Testes E Entrega Premium | Roteiro de apresentacao, checklist de avaliacao e evidencias de testes |
 
 ## Estado Final
 
-O projeto fecha a sequencia incremental com codigo compilavel, scripts de banco, validacao automatizada, documentacao de apoio para execucao local e melhoria V2 para manutencao completa dos cadastros administrativos e auditoria profissional com rastreabilidade antes/depois e controle de acesso por perfil e regras de negocio reforcadas.
+O projeto fecha a sequencia incremental com codigo compilavel, scripts de banco, validacao automatizada, documentacao de apoio para execucao local e melhoria V2 para manutencao completa dos cadastros administrativos e auditoria profissional com rastreabilidade antes/depois e controle de acesso por perfil, regras de negocio reforcadas e pacote final de avaliacao.

@@ -1,6 +1,6 @@
 # Entrega Final
 
-Este documento consolida a entrega completa do SmartLibrary conforme o plano incremental de 10 fases.
+Este documento consolida a entrega completa do SmartLibrary conforme o plano incremental expandido para 15 fases.
 
 ## Objetivo
 
@@ -20,10 +20,15 @@ Desenvolver um sistema academico de biblioteca em C17 com persistencia relaciona
 | 8 | Relatorios operacionais | Concluida |
 | 9 | Testes automatizados integrados | Concluida |
 | 10 | Documentacao final | Concluida |
+| 11 | Cadastros V2: busca, alteracao, exclusao/desativacao | Concluida |
+| 12 | Auditoria profissional com snapshots antes/depois | Concluida |
+| 13 | Login, hash BCrypt e permissoes por perfil | Concluida |
+| 14 | Regras de negocio reforcadas e vinculos bibliograficos | Concluida |
+| 15 | Roteiro, checklist e evidencias finais de avaliacao | Concluida |
 
 ## Funcionalidades Principais
 
-- Cadastro e listagem de usuarios, autores, editoras, generos, livros e exemplares.
+- Cadastro, listagem, busca, alteracao e exclusao/desativacao de usuarios, autores, editoras, generos, livros e exemplares.
 - Controle transacional de emprestimo, devolucao e renovacao.
 - Regras de bloqueio para usuario inativo, usuario bloqueado, atraso, limite de exemplares, exemplar indisponivel e reserva de outro usuario.
 - Reserva com criacao, cancelamento, atendimento e expiracao.
@@ -32,6 +37,9 @@ Desenvolver um sistema academico de biblioteca em C17 com persistencia relaciona
 - Consultas NoSQL pela propria aplicacao.
 - Relatorios de acervo, atrasos, livros mais emprestados, origens de emprestimo, reservas ativas e usuarios com pendencias.
 - Testes integrados em bancos isolados.
+- Login obrigatorio, senhas com hash BCrypt e controle por perfil.
+- Auditoria antes/depois real no MongoDB.
+- Roteiro de apresentacao, checklist de avaliacao e matriz de evidencias.
 
 ## Persistencia
 
@@ -52,4 +60,4 @@ Essa rotina recompila o projeto se necessario, recria bancos de teste, aplica mi
 
 ## Observacoes
 
-O sistema foi construido como aplicacao academica em terminal. Pontos como autenticacao real por senha, criptografia de senha, associacao completa livro-autor/genero via UI e controle de permissao por perfil podem evoluir em uma versao posterior, mas o fluxo principal especificado esta implementado e validado.
+O sistema foi construido como aplicacao academica em terminal, com persistencia relacional/documental, seguranca por perfil, regras reforcadas, testes integrados e documentacao de avaliacao. A proxima consolidacao planejada e a Especificacao V3, refletindo o escopo final implementado.

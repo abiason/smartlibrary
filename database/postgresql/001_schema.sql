@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE perfil (
     id_perfil SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL,

@@ -66,6 +66,12 @@ Invoke-Psql @("-d", $TestDatabase, "-v", "ON_ERROR_STOP=1", "-f", (Join-Path $Pr
 
 Write-Host "[TEST] Inserindo fixtures relacionais..."
 $fixtureSql = @"
+INSERT INTO usuario (id_usuario, nome, cpf, email, telefone, senha_hash, id_perfil, ativo, bloqueado)
+VALUES (9000, 'Administrador Teste Fase 13', '000.000.000-00', 'admin.fase13@example.com', '', crypt('admin-fase13', gen_salt('bf')), 3, true, false);
+
+INSERT INTO usuario (id_usuario, nome, cpf, email, telefone, senha_hash, id_perfil, ativo, bloqueado)
+VALUES (9001, 'Bibliotecario Teste Fase 13', '111.111.111-11', 'bibliotecario.fase13@example.com', '', crypt('biblio-fase13', gen_salt('bf')), 2, true, false);
+
 INSERT INTO usuario (nome, cpf, email, telefone, senha_hash, id_perfil, ativo, bloqueado)
 VALUES ('Usuario Teste Fase 9', '900.000.000-01', 'fase9@example.com', '11999990000', 'hash-teste', 1, true, false);
 
@@ -92,7 +98,7 @@ $env:POSTGRES_PORT = $PostgresPort
 $env:POSTGRES_DB = $TestDatabase
 $env:POSTGRES_USER = $PostgresUser
 $env:MONGODB_DATABASE = $MongoDatabase
-$inputData = "2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
+$inputData = "000.000.000-00`nadmin-fase13`n2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
 $output = $inputData | & $Binary
 if ($LASTEXITCODE -ne 0) {
     $output | Write-Host
@@ -107,6 +113,16 @@ Assert-True ($output -join "`n").Contains("Usuario Teste Fase 9") "Busca de usua
 Assert-True ($output -join "`n").Contains("[OK] Usuario atualizado.") "Alteracao de usuario nao confirmou sucesso."
 Assert-True ($output -join "`n").Contains("[OK] Usuario desativado.") "Usuario com historico nao foi desativado."
 Assert-True ($output -join "`n").Contains("Livro possui exemplares ou reservas vinculadas.") "Exclusao bloqueada de livro vinculado nao foi validada."
+Assert-True ($output -join "`n").Contains("Login realizado: Administrador Teste Fase 13 (ADMINISTRADOR).") "Login administrativo nao foi validado."
+
+Write-Host "[TEST] Validando bloqueio por perfil..."
+$restrictedInput = "111.111.111-11`nbiblio-fase13`n1`n0`n"
+$restrictedOutput = $restrictedInput | & $Binary
+if ($LASTEXITCODE -ne 0) {
+    $restrictedOutput | Write-Host
+    throw "Aplicacao retornou codigo $LASTEXITCODE no fluxo de permissao"
+}
+Assert-True ($restrictedOutput -join "`n").Contains("[ERRO] Acesso negado para o perfil atual.") "Bibliotecario nao deveria acessar cadastros administrativos."
 
 Write-Host "[TEST] Validando estado PostgreSQL..."
 $loanState = Invoke-PsqlScalar $TestDatabase "SELECT origem || ':' || status FROM emprestimo ORDER BY id_emprestimo DESC LIMIT 1;"
@@ -146,4 +162,7 @@ Assert-True ($usuarioDeactivateAfter -eq "false") "Auditoria de desativacao nao 
 $logCount = Invoke-MongoScalar "db.logs.countDocuments({componente:'main'})"
 Assert-True ([int]$logCount -ge 1) "Logs de sistema nao foram registrados."
 
-Write-Host "[TEST] OK: build, cadastros V2, fluxo, relatorios, PostgreSQL e MongoDB validados."
+$authLogCount = Invoke-MongoScalar "db.logs.countDocuments({componente:'auth', mensagem:'Login realizado com sucesso.'})"
+Assert-True ([int]$authLogCount -ge 2) "Logs de autenticacao nao foram registrados."
+
+Write-Host "[TEST] OK: build, login/perfis, cadastros V2, fluxo, relatorios, PostgreSQL e MongoDB validados."

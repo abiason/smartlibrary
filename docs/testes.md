@@ -19,6 +19,7 @@ A rotina executa:
 - validacao de emprestimo e devolucao;
 - validacao de busca, alteracao e exclusao/desativacao de cadastros;
 - validacao de snapshots antes/depois em auditoria MongoDB;
+- validacao de login administrativo e bloqueio de acesso por perfil;
 - validacao dos relatorios pela UI;
 - validacao de eventos, logs e auditoria no MongoDB.
 
@@ -54,6 +55,7 @@ A validacao automatizada cobre:
 - eventos MongoDB;
 - auditoria MongoDB de circulacao e cadastros;
 - conteudo antes/depois da alteracao e desativacao de usuario;
+- login com administrador e bloqueio de bibliotecario em cadastros administrativos;
 - logs MongoDB.
 
 Testes unitarios granulares em C podem ser adicionados em fase posterior se o projeto ganhar uma biblioteca de testes dedicada.

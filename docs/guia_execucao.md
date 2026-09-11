@@ -88,3 +88,14 @@ Fluxo simples para demonstracao:
 4. Entre em `Self Checkout` e identifique o usuario por CPF.
 5. Entre em `NoSQL` e consulte eventos, logs e auditoria.
 6. Entre em `Relatorios` e consulte acervo, origens e ranking.
+## 8. Primeiro Acesso E Perfis
+
+Ao iniciar a aplicacao, o sistema exige login. Se a tabela `usuario` estiver vazia, sera aberto um fluxo de primeiro acesso para criar o administrador inicial.
+
+A senha do administrador inicial nao fica versionada no repositorio. Ela e informada localmente pelo operador e gravada no PostgreSQL com hash BCrypt via `pgcrypto`.
+
+Permissoes atuais:
+
+- `ADMINISTRADOR`: cadastros, circulacao, reservas, self checkout, NoSQL e relatorios.
+- `BIBLIOTECARIO`: circulacao, reservas e relatorios.
+- `USUARIO`: self checkout.

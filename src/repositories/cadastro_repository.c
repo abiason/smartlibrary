@@ -164,7 +164,7 @@ int cadastro_repository_criar_usuario(PGconn *conn, const Usuario *usuario) {
 
     return exec_insert(conn,
         "INSERT INTO usuario (nome, cpf, email, telefone, senha_hash, id_perfil, ativo, bloqueado) "
-        "VALUES ($1, $2, NULLIF($3, ''), NULLIF($4, ''), $5, $6::integer, $7::boolean, $8::boolean)",
+        "VALUES ($1, $2, NULLIF($3, ''), NULLIF($4, ''), crypt($5, gen_salt('bf')), $6::integer, $7::boolean, $8::boolean)",
         8, params);
 }
 

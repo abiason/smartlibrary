@@ -14,7 +14,8 @@
 | 10 | Documentacao Final | README, guia de execucao, entrega final e consolidacao da arquitetura |
 | 11 | Cadastros V2 | Busca, alteracao, exclusao/desativacao segura e auditoria MongoDB |
 | 12 | Auditoria Profissional | Snapshots antes/depois reais dos cadastros em documentos MongoDB |
+| 13 | Seguranca E Perfis | Login, hash BCrypt via pgcrypto, primeiro acesso e permissoes por perfil |
 
 ## Estado Final
 
-O projeto fecha a sequencia incremental com codigo compilavel, scripts de banco, validacao automatizada, documentacao de apoio para execucao local e melhoria V2 para manutencao completa dos cadastros administrativos e auditoria profissional com rastreabilidade antes/depois.
+O projeto fecha a sequencia incremental com codigo compilavel, scripts de banco, validacao automatizada, documentacao de apoio para execucao local e melhoria V2 para manutencao completa dos cadastros administrativos e auditoria profissional com rastreabilidade antes/depois e controle de acesso por perfil.

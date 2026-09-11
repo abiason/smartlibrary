@@ -60,4 +60,8 @@ Essa rotina recompila o projeto se necessario, recria bancos de teste, aplica mi
 
 ## Observacoes
 
-O sistema foi construido como aplicacao academica em terminal, com persistencia relacional/documental, seguranca por perfil, regras reforcadas, testes integrados e documentacao de avaliacao. A proxima consolidacao planejada e a Especificacao V3, refletindo o escopo final implementado.
+O sistema foi construido como aplicacao academica em terminal, com persistencia relacional/documental, seguranca por perfil, regras reforcadas, testes integrados e documentacao de avaliacao. A consolidacao final esta registrada em `docs/especificacao_v3.md`, refletindo o escopo implementado ate a Fase 15.
+
+## Especificacao V3
+
+A especificacao consolidada final esta em docs/especificacao_v3.md.

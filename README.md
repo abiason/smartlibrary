@@ -4,7 +4,7 @@ Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com Postg
 
 ## Escopo Atual
 
-Esta entrega implementa as Fases 1, 2, 3 e 4 da especificacao:
+Esta entrega implementa as Fases 1, 2, 3, 4 e 5 da especificacao:
 
 - estrutura inicial do projeto;
 - configuracao por variaveis de ambiente;
@@ -23,9 +23,11 @@ Esta entrega implementa as Fases 1, 2, 3 e 4 da especificacao:
 - criacao e listagem de usuarios, autores, editoras, generos, livros e exemplares;
 - emprestimos, devolucoes e renovacoes transacionais;
 - bloqueio de exemplar com `SELECT ... FOR UPDATE`;
-- eventos MongoDB basicos apos operacoes de circulacao confirmadas.
+- eventos MongoDB basicos apos operacoes de circulacao confirmadas;
+- criacao, cancelamento, atendimento, expiracao e listagem de reservas;
+- bloqueio de emprestimos e renovacoes por reserva ativa de outro usuario.
 
-Reservas, Self Checkout completo e relatorios pertencem a fases futuras.
+Self Checkout completo e relatorios pertencem a fases futuras.
 
 ## Dependencias
 
@@ -98,16 +100,19 @@ smartlibrary/
 |   |   `-- mongodb.h
 |   |-- repositories/
 |   |   |-- cadastro_repository.c / cadastro_repository.h
-|   |   `-- emprestimo_repository.c / emprestimo_repository.h
+|   |   |-- emprestimo_repository.c / emprestimo_repository.h
+|   |   `-- reserva_repository.c / reserva_repository.h
 |   |-- services/
 |   |   |-- cadastro_service.c / cadastro_service.h
-|   |   `-- emprestimo_service.c / emprestimo_service.h
+|   |   |-- emprestimo_service.c / emprestimo_service.h
+|   |   `-- reserva_service.c / reserva_service.h
 |   |-- events/
 |   |   `-- event_service.c / event_service.h
 |   |-- ui/
 |   |   |-- main_ui.c / main_ui.h
 |   |   |-- cadastro_ui.c / cadastro_ui.h
-|   |   `-- emprestimo_ui.c / emprestimo_ui.h
+|   |   |-- emprestimo_ui.c / emprestimo_ui.h
+|   |   `-- reserva_ui.c / reserva_ui.h
 |   |-- utils/
 |   |   `-- input.c / input.h
 |   `-- models/
@@ -135,6 +140,7 @@ smartlibrary/
 |   |-- dicionario_dados.md
 |   |-- cadastros.md
 |   |-- emprestimos.md
+|   |-- reservas.md
 |   `-- diagrams/
 |       |-- c4_contexto.md
 |       |-- c4_containers.md
@@ -143,9 +149,11 @@ smartlibrary/
 |       |-- fluxo_emprestimo.md
 |       |-- fluxo_devolucao.md
 |       |-- fluxo_renovacao.md
+|       |-- fluxo_reserva.md
 |       |-- sequencia_emprestimo.md
 |       |-- sequencia_devolucao.md
 |       |-- sequencia_renovacao.md
+|       |-- sequencia_reserva.md
 |       `-- arquitetura_geral.md
 |-- .env.example
 |-- .gitignore

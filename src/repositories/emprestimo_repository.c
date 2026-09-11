@@ -221,6 +221,17 @@ int emprestimo_repository_realizar_emprestimo(PGconn *conn, int usuario_id, cons
     }
     PQclear(result);
 
+    result = exec_params(conn,
+        "UPDATE reserva SET status = 'ATENDIDA' "
+        "WHERE id_livro = $1::integer AND id_usuario = $2::integer AND status = 'ATIVA'",
+        2, params_reserva);
+    if (result == NULL) {
+        rollback(conn);
+        set_motivo(motivo, motivo_size, "Falha ao atender reserva do usuario.");
+        return 0;
+    }
+    PQclear(result);
+
     if (!commit(conn)) {
         set_motivo(motivo, motivo_size, "Falha ao confirmar transacao.");
         return 0;
@@ -443,5 +454,6 @@ PGresult *emprestimo_repository_listar_emprestimos_abertos(PGconn *conn) {
         "ORDER BY e.id_emprestimo, i.id_emprestimo_item",
         0, NULL);
 }
+
 
 

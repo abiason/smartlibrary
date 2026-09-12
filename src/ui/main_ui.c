@@ -3,6 +3,7 @@
 #include "auth/auth_service.h"
 #include "events/event_service.h"
 #include "ui/cadastro_ui.h"
+#include "ui/console_ui.h"
 #include "ui/emprestimo_ui.h"
 #include "ui/nosql_ui.h"
 #include "ui/relatorio_ui.h"
@@ -30,21 +31,21 @@ static int can_access_option(const AuthSession *session, int option) {
 }
 
 static void print_menu(const AuthSession *session) {
-    printf("\n===================================\n");
-    printf("SMART LIBRARY - MENU PRINCIPAL\n");
-    printf("===================================\n");
+    ui_header("SMARTLIBRARY", "Menu Principal");
     if (session != NULL && session->authenticated) {
-        printf("Operador: %s (%s)\n", session->nome, session->perfil_nome);
-        printf("-----------------------------------\n");
+        ui_context("Operador", session->nome);
+        ui_context("Perfil", session->perfil_nome);
+        putchar('\n');
     }
-    printf("1 - Cadastros administrativos\n");
-    printf("2 - Circulacao\n");
-    printf("3 - Reservas\n");
-    printf("4 - Self Checkout\n");
-    printf("5 - NoSQL: eventos, logs e auditoria\n");
-    printf("6 - Relatorios\n");
-    printf("7 - Trocar senha\n");
-    printf("0 - Sair\n");
+    ui_menu_item(1, "Cadastros administrativos");
+    ui_menu_item(2, "Circulacao");
+    ui_menu_item(3, "Reservas");
+    ui_menu_item(4, "Self Checkout");
+    ui_menu_item(5, "Eventos, logs e auditoria");
+    ui_menu_item(6, "Relatorios");
+    ui_menu_item(7, "Trocar senha");
+    ui_menu_back("Sair");
+    putchar('\n');
 }
 
 static void trocar_senha(PostgresConnection *postgres, MongoConnection *mongo, const AuthSession *session) {
@@ -53,27 +54,31 @@ static void trocar_senha(PostgresConnection *postgres, MongoConnection *mongo, c
     char confirmacao[256];
 
     if (session == NULL || !session->authenticated) {
-        printf("[ERRO] Sessao invalida. Faca login novamente.\n");
+        ui_error("Sessao invalida. Faca login novamente.");
         return;
     }
 
-    input_read_line("Senha atual: ", senha_atual, sizeof(senha_atual));
-    input_read_line("Nova senha: ", nova_senha, sizeof(nova_senha));
-    input_read_line("Confirme a nova senha: ", confirmacao, sizeof(confirmacao));
+    ui_header("SMARTLIBRARY", "Trocar Senha");
+    ui_prompt_label("Senha atual");
+    input_read_line("", senha_atual, sizeof(senha_atual));
+    ui_prompt_label("Nova senha");
+    input_read_line("", nova_senha, sizeof(nova_senha));
+    ui_prompt_label("Confirmacao");
+    input_read_line("", confirmacao, sizeof(confirmacao));
 
     if (strcmp(nova_senha, confirmacao) != 0) {
-        printf("[ERRO] Confirmacao diferente da nova senha.\n");
+        ui_error("Confirmacao diferente da nova senha.");
         event_service_registrar_log(mongo, "WARN", "auth", "", "Troca de senha recusada por confirmacao divergente.");
         return;
     }
 
     if (!auth_service_trocar_senha(postgres, session->usuario_id, senha_atual, nova_senha)) {
-        printf("[ERRO] Senha nao alterada. Verifique a senha atual e o tamanho minimo da nova senha.\n");
+        ui_error("Senha nao alterada. Verifique os dados informados.");
         event_service_registrar_log(mongo, "WARN", "auth", "", "Troca de senha recusada.");
         return;
     }
 
-    printf("[OK] Senha alterada com sucesso.\n");
+    ui_success("Senha alterada com sucesso.");
     event_service_registrar_log(mongo, "INFO", "auth", "", "Senha alterada com sucesso.");
 }
 
@@ -81,16 +86,16 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo, const Aut
     int option = -1;
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu(session);
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
 
         if (option != 0 && !can_access_option(session, option)) {
-            printf("[ERRO] Acesso negado para o perfil atual.\n");
+            ui_error("Acesso negado para o perfil atual.");
             input_wait_enter();
             continue;
         }
@@ -118,10 +123,10 @@ void main_ui_run(PostgresConnection *postgres, MongoConnection *mongo, const Aut
                 trocar_senha(postgres, mongo, session);
                 break;
             case 0:
-                printf("[INFO] Encerrando aplicacao.\n");
+                ui_info("Encerrando aplicacao.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

@@ -3,6 +3,7 @@
 #include "database/mongodb.h"
 #include "database/postgres.h"
 #include "events/event_service.h"
+#include "ui/console_ui.h"
 #include "ui/main_ui.h"
 #include "utils/input.h"
 
@@ -24,28 +25,30 @@ static int garantir_admin_ativo(PostgresConnection *postgres, MongoConnection *m
         return 1;
     }
 
-    input_clear_screen();
-    printf("===================================\n");
-    printf("SMART LIBRARY - PRIMEIRO ACESSO\n");
-    printf("===================================\n");
+    ui_clear();
+    ui_header("SMARTLIBRARY", "Primeiro Acesso");
     if (total_usuarios == 0) {
-        printf("Nenhum usuario encontrado. Crie o administrador inicial.\n");
+        ui_info("Nenhum usuario encontrado. Crie o administrador inicial.");
     } else {
-        printf("Nenhum administrador ativo encontrado. Crie um administrador de recuperacao para acessar o sistema.\n");
+        ui_warning("Nenhum administrador ativo encontrado. Crie um administrador de recuperacao.");
     }
-    input_read_line("Nome: ", nome, sizeof(nome));
-    input_read_line("CPF: ", cpf, sizeof(cpf));
-    input_read_line("E-mail: ", email, sizeof(email));
-    input_read_line("Senha: ", senha, sizeof(senha));
+    ui_prompt_label("Nome");
+    input_read_line("", nome, sizeof(nome));
+    ui_prompt_label("CPF");
+    input_read_line("", cpf, sizeof(cpf));
+    ui_prompt_label("E-mail");
+    input_read_line("", email, sizeof(email));
+    ui_prompt_label("Senha");
+    input_read_line("", senha, sizeof(senha));
 
     if (!auth_service_criar_admin_inicial(postgres, nome, cpf, email, senha)) {
-        printf("[ERRO] Administrador inicial nao foi criado.\n");
+        ui_error("Administrador inicial nao foi criado.");
         event_service_registrar_log(mongo, "ERROR", "auth", "", "Falha ao criar administrador inicial.");
         input_wait_enter();
         return 0;
     }
 
-    printf("[OK] Administrador ativo criado. Use essas credenciais para entrar.\n");
+    ui_success("Administrador ativo criado. Use essas credenciais para entrar.");
     event_service_registrar_log(mongo, "INFO", "auth", "", "Administrador ativo criado no primeiro acesso ou recuperacao.");
     input_wait_enter();
     return 1;
@@ -56,21 +59,27 @@ static int autenticar_operador(PostgresConnection *postgres, MongoConnection *mo
     char senha[256];
 
     for (int tentativa = 1; tentativa <= 3; tentativa++) {
-        input_clear_screen();
-        printf("===================================\n");
-        printf("SMART LIBRARY - LOGIN\n");
-        printf("===================================\n");
-        input_read_line("CPF: ", cpf, sizeof(cpf));
-        input_read_line("Senha: ", senha, sizeof(senha));
+        char contexto[64];
+
+        snprintf(contexto, sizeof(contexto), "Login - tentativa %d de 3", tentativa);
+        ui_clear();
+        ui_header("SMARTLIBRARY", contexto);
+        ui_prompt_label("CPF");
+        input_read_line("", cpf, sizeof(cpf));
+        ui_prompt_label("Senha");
+        input_read_line("", senha, sizeof(senha));
 
         if (auth_service_autenticar(postgres, cpf, senha, session)) {
-            printf("[OK] Login realizado: %s (%s).\n", session->nome, session->perfil_nome);
+            char mensagem[256];
+
+            snprintf(mensagem, sizeof(mensagem), "Login realizado: %s (%s).", session->nome, session->perfil_nome);
+            ui_success(mensagem);
             event_service_registrar_log(mongo, "INFO", "auth", "", "Login realizado com sucesso.");
             input_wait_enter();
             return 1;
         }
 
-        printf("[ERRO] Login recusado. Verifique CPF/senha ou confirme se o usuario esta ativo e desbloqueado.\n");
+        ui_error("Login recusado. Verifique CPF, senha e situacao do usuario.");
         event_service_registrar_log(mongo, "WARN", "auth", "", "Tentativa de login recusada.");
         input_wait_enter();
     }
@@ -88,17 +97,15 @@ int main(void) {
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stderr, NULL, _IONBF, 0);
 
-    printf("===================================\n");
-    printf("SMART LIBRARY SYSTEM\n");
-    printf("===================================\n");
-    printf("[INFO] Inicializando sistema...\n");
+    ui_header("SMARTLIBRARY", "Inicializacao do Sistema");
+    ui_info("Inicializando sistema...");
 
     if (!config_load(&config)) {
-        fprintf(stderr, "[ERRO] Falha ao carregar configuracao.\n");
+        ui_error("Falha ao carregar configuracao.");
         return 1;
     }
 
-    printf("[OK] Configuracao carregada.\n");
+    ui_success("Configuracao carregada.");
     config_print_summary(&config);
 
     mongodb_driver_init();
@@ -107,15 +114,15 @@ int main(void) {
         exit_code = 1;
         goto cleanup;
     }
-    printf("[OK] PostgreSQL conectado.\n");
+    ui_success("PostgreSQL conectado.");
 
     if (!mongodb_connect(&mongo, &config)) {
         exit_code = 1;
         goto cleanup;
     }
-    printf("[OK] MongoDB conectado.\n");
+    ui_success("MongoDB conectado.");
 
-    printf("[INFO] Sistema inicializado com sucesso.\n");
+    ui_info("Sistema inicializado com sucesso.");
     event_service_registrar_log(&mongo, "INFO", "main", "", "Sistema inicializado com sucesso.");
 
     if (!garantir_admin_ativo(&postgres, &mongo)) {
@@ -124,7 +131,7 @@ int main(void) {
     }
 
     if (!autenticar_operador(&postgres, &mongo, &session)) {
-        fprintf(stderr, "[ERRO] Acesso negado apos 3 tentativas.\n");
+        ui_error("Acesso negado apos 3 tentativas.");
         exit_code = 1;
         goto cleanup;
     }
@@ -133,15 +140,15 @@ int main(void) {
 
 cleanup:
     event_service_registrar_log(&mongo, "INFO", "main", "", "Sistema em encerramento.");
-    printf("[INFO] Encerrando conexoes...\n");
+    ui_info("Encerrando conexoes...");
     mongodb_disconnect(&mongo);
     postgres_disconnect(&postgres);
     mongodb_driver_cleanup();
 
     if (exit_code == 0) {
-        printf("[OK] Sistema finalizado.\n");
+        ui_success("Sistema finalizado.");
     } else {
-        fprintf(stderr, "[ERRO] Sistema finalizado com falhas.\n");
+        ui_error("Sistema finalizado com falhas.");
     }
 
     return exit_code;

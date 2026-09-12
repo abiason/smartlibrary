@@ -1,6 +1,7 @@
 #include "reserva_ui.h"
 
 #include "services/reserva_service.h"
+#include "ui/console_ui.h"
 #include "utils/input.h"
 
 #include <stdio.h>
@@ -26,25 +27,24 @@ static void atender_reserva(PostgresConnection *postgres, MongoConnection *mongo
 }
 
 static void print_menu(void) {
-    printf("\n===================================\n");
-    printf("RESERVAS\n");
-    printf("===================================\n");
-    printf("1 - Criar reserva\n");
-    printf("2 - Cancelar reserva\n");
-    printf("3 - Atender reserva\n");
-    printf("4 - Expirar reservas vencidas\n");
-    printf("5 - Listar reservas\n");
-    printf("0 - Voltar\n");
+    ui_header("RESERVAS", "Menu");
+    ui_menu_item(1, "Criar reserva");
+    ui_menu_item(2, "Cancelar reserva");
+    ui_menu_item(3, "Atender reserva");
+    ui_menu_item(4, "Expirar reservas vencidas");
+    ui_menu_item(5, "Listar reservas");
+    ui_menu_back("Voltar");
+    putchar('\n');
 }
 
 void reserva_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
     int option = -1;
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu();
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
@@ -66,10 +66,10 @@ void reserva_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
                 reserva_service_listar(postgres);
                 break;
             case 0:
-                printf("[INFO] Voltando ao menu principal.\n");
+                ui_info("Voltando ao menu principal.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

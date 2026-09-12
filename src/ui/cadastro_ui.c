@@ -7,22 +7,29 @@
 #include "models/livro.h"
 #include "models/usuario.h"
 #include "services/cadastro_service.h"
+#include "ui/console_ui.h"
 #include "utils/input.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 
 static void print_result(int ok) {
-    printf(ok ? "[OK] Operacao concluida.\n" : "[ERRO] Operacao nao concluida.\n");
+    if (ok) {
+        ui_success("Operacao concluida.");
+    } else {
+        ui_error("Operacao nao concluida.");
+    }
 }
 
 static StatusExemplar read_status_exemplar(void) {
     int status = 1;
-    printf("1 - DISPONIVEL\n");
-    printf("2 - EMPRESTADO\n");
-    printf("3 - RESERVADO\n");
-    printf("4 - MANUTENCAO\n");
-    printf("5 - EXTRAVIADO\n");
+    ui_header("CADASTROS", "Status do Exemplar");
+    ui_menu_item(1, "DISPONIVEL");
+    ui_menu_item(2, "EMPRESTADO");
+    ui_menu_item(3, "RESERVADO");
+    ui_menu_item(4, "MANUTENCAO");
+    ui_menu_item(5, "EXTRAVIADO");
+    putchar('\n');
     input_read_int("Status: ", &status);
 
     switch (status) {
@@ -36,12 +43,14 @@ static StatusExemplar read_status_exemplar(void) {
 
 static int escolher_entidade(void) {
     int entity = 0;
-    printf("\n1 - Usuario\n");
-    printf("2 - Autor\n");
-    printf("3 - Editora\n");
-    printf("4 - Genero\n");
-    printf("5 - Livro\n");
-    printf("6 - Exemplar\n");
+    ui_header("CADASTROS", "Escolha da Entidade");
+    ui_menu_item(1, "Usuario");
+    ui_menu_item(2, "Autor");
+    ui_menu_item(3, "Editora");
+    ui_menu_item(4, "Genero");
+    ui_menu_item(5, "Livro");
+    ui_menu_item(6, "Exemplar");
+    putchar('\n');
     input_read_int("Entidade: ", &entity);
     return entity;
 }
@@ -277,32 +286,31 @@ static void gerenciar_vinculos_livro(PostgresConnection *postgres, MongoConnecti
             cadastro_service_desvincular_livro_genero(postgres, mongo, livro_id, related_id, operador_id);
             break;
         default:
-            printf("[ERRO] Opcao invalida.\n");
+            ui_error("Opcao invalida.");
             break;
     }
 }
 
 static void print_menu(void) {
-    printf("\n===================================\n");
-    printf("CADASTROS ADMINISTRATIVOS\n");
-    printf("===================================\n");
-    printf("1 - Criar cadastro\n");
-    printf("2 - Listar cadastros\n");
-    printf("3 - Buscar cadastro\n");
-    printf("4 - Alterar cadastro\n");
-    printf("5 - Excluir ou desativar cadastro\n");
-    printf("6 - Gerenciar vinculos de livro\n");
-    printf("0 - Voltar\n");
+    ui_header("CADASTROS ADMINISTRATIVOS", "Menu");
+    ui_menu_item(1, "Criar cadastro");
+    ui_menu_item(2, "Listar cadastros");
+    ui_menu_item(3, "Buscar cadastro");
+    ui_menu_item(4, "Alterar cadastro");
+    ui_menu_item(5, "Excluir ou desativar cadastro");
+    ui_menu_item(6, "Gerenciar vinculos de livro");
+    ui_menu_back("Voltar");
+    putchar('\n');
 }
 
 void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     int option = -1;
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu();
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
@@ -327,10 +335,10 @@ void cadastro_ui_run(PostgresConnection *postgres, MongoConnection *mongo, int o
                 gerenciar_vinculos_livro(postgres, mongo, operador_id);
                 break;
             case 0:
-                printf("[INFO] Voltando ao menu principal.\n");
+                ui_info("Voltando ao menu principal.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

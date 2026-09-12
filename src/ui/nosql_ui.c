@@ -1,6 +1,7 @@
 #include "nosql_ui.h"
 
 #include "events/event_service.h"
+#include "ui/console_ui.h"
 #include "utils/input.h"
 
 #include <stdio.h>
@@ -14,24 +15,23 @@ static int read_limit(void) {
 }
 
 static void print_menu(void) {
-    printf("\n===================================\n");
-    printf("NOSQL - EVENTOS, LOGS E AUDITORIA\n");
-    printf("===================================\n");
-    printf("1 - Listar eventos recentes\n");
-    printf("2 - Listar logs recentes\n");
-    printf("3 - Listar auditoria recente\n");
-    printf("4 - Resumo de eventos por tipo\n");
-    printf("0 - Voltar\n");
+    ui_header("NOSQL - EVENTOS, LOGS E AUDITORIA", "Menu");
+    ui_menu_item(1, "Listar eventos recentes");
+    ui_menu_item(2, "Listar logs recentes");
+    ui_menu_item(3, "Listar auditoria recente");
+    ui_menu_item(4, "Resumo de eventos por tipo");
+    ui_menu_back("Voltar");
+    putchar('\n');
 }
 
 void nosql_ui_run(MongoConnection *mongo) {
     int option = -1;
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu();
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
@@ -50,10 +50,10 @@ void nosql_ui_run(MongoConnection *mongo) {
                 event_service_resumir_eventos_por_tipo(mongo);
                 break;
             case 0:
-                printf("[INFO] Voltando ao menu principal.\n");
+                ui_info("Voltando ao menu principal.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

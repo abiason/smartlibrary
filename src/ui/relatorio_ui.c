@@ -1,6 +1,7 @@
 #include "relatorio_ui.h"
 
 #include "services/relatorio_service.h"
+#include "ui/console_ui.h"
 #include "utils/input.h"
 
 #include <stdio.h>
@@ -14,26 +15,25 @@ static int read_limit(void) {
 }
 
 static void print_menu(void) {
-    printf("\n===================================\n");
-    printf("RELATORIOS\n");
-    printf("===================================\n");
-    printf("1 - Acervo por status\n");
-    printf("2 - Emprestimos atrasados\n");
-    printf("3 - Livros mais emprestados\n");
-    printf("4 - Emprestimos por origem\n");
-    printf("5 - Reservas ativas\n");
-    printf("6 - Usuarios com pendencias\n");
-    printf("0 - Voltar\n");
+    ui_header("RELATORIOS", "Menu");
+    ui_menu_item(1, "Acervo por status");
+    ui_menu_item(2, "Emprestimos atrasados");
+    ui_menu_item(3, "Livros mais emprestados");
+    ui_menu_item(4, "Emprestimos por origem");
+    ui_menu_item(5, "Reservas ativas");
+    ui_menu_item(6, "Usuarios com pendencias");
+    ui_menu_back("Voltar");
+    putchar('\n');
 }
 
 void relatorio_ui_run(PostgresConnection *postgres) {
     int option = -1;
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu();
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
@@ -58,10 +58,10 @@ void relatorio_ui_run(PostgresConnection *postgres) {
                 relatorio_service_usuarios_com_pendencias(postgres);
                 break;
             case 0:
-                printf("[INFO] Voltando ao menu principal.\n");
+                ui_info("Voltando ao menu principal.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

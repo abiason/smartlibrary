@@ -2,26 +2,27 @@
 
 #include "events/event_service.h"
 #include "services/self_checkout_service.h"
+#include "ui/console_ui.h"
 #include "utils/input.h"
 
 #include <stdio.h>
 
 static void print_header(void) {
-    printf("\n=========================================\n");
-    printf("SMART LIBRARY\n");
-    printf("SELF CHECKOUT\n");
-    printf("=========================================\n");
+    ui_header("SMARTLIBRARY", "Self Checkout");
 }
 
 static void print_menu(const char *nome) {
-    printf("\nUsuario: %s\n", nome);
-    printf("1 - Realizar emprestimo\n");
-    printf("2 - Realizar devolucao\n");
-    printf("3 - Renovar emprestimo\n");
-    printf("4 - Consultar emprestimos\n");
-    printf("5 - Consultar reservas\n");
-    printf("6 - Pesquisar livros\n");
-    printf("0 - Encerrar atendimento\n");
+    ui_header("SMARTLIBRARY", "Self Checkout");
+    ui_context("Usuario", nome);
+    putchar('\n');
+    ui_menu_item(1, "Realizar emprestimo");
+    ui_menu_item(2, "Realizar devolucao");
+    ui_menu_item(3, "Renovar emprestimo");
+    ui_menu_item(4, "Consultar emprestimos");
+    ui_menu_item(5, "Consultar reservas");
+    ui_menu_item(6, "Pesquisar livros");
+    ui_menu_back("Encerrar atendimento");
+    putchar('\n');
 }
 
 static void realizar_emprestimo(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id) {
@@ -55,7 +56,7 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
     int usuario_id = 0;
     int option = -1;
 
-    input_clear_screen();
+    ui_clear();
     print_header();
     event_service_registrar_origem(mongo, "SELF_CHECKOUT_INICIADO", "SELF_CHECKOUT", 0, 0, 0, "");
     input_read_line("CPF: ", cpf, sizeof(cpf));
@@ -66,10 +67,10 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
     }
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu(nome);
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
@@ -94,10 +95,10 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
                 pesquisar_livros(postgres);
                 break;
             case 0:
-                printf("[INFO] Atendimento encerrado.\n");
+                ui_info("Atendimento encerrado.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

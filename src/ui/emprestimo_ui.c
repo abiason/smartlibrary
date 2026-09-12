@@ -1,6 +1,7 @@
 #include "emprestimo_ui.h"
 
 #include "services/emprestimo_service.h"
+#include "ui/console_ui.h"
 #include "utils/input.h"
 
 #include <stdio.h>
@@ -30,24 +31,23 @@ static void renovar_emprestimo(PostgresConnection *postgres, MongoConnection *mo
 }
 
 static void print_menu(void) {
-    printf("\n===================================\n");
-    printf("CIRCULACAO\n");
-    printf("===================================\n");
-    printf("1 - Realizar emprestimo\n");
-    printf("2 - Realizar devolucao\n");
-    printf("3 - Renovar emprestimo\n");
-    printf("4 - Listar emprestimos abertos\n");
-    printf("0 - Voltar\n");
+    ui_header("CIRCULACAO", "Menu");
+    ui_menu_item(1, "Realizar emprestimo");
+    ui_menu_item(2, "Realizar devolucao");
+    ui_menu_item(3, "Renovar emprestimo");
+    ui_menu_item(4, "Listar emprestimos abertos");
+    ui_menu_back("Voltar");
+    putchar('\n');
 }
 
 void emprestimo_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
     int option = -1;
 
     while (option != 0) {
-        input_clear_screen();
+        ui_clear();
         print_menu();
-        if (!input_read_int("Opcao: ", &option)) {
-            printf("[ERRO] Opcao invalida.\n");
+        if (!input_read_int("Escolha uma opcao: ", &option)) {
+            ui_error("Opcao invalida.");
             input_wait_enter();
             continue;
         }
@@ -66,10 +66,10 @@ void emprestimo_ui_run(PostgresConnection *postgres, MongoConnection *mongo) {
                 emprestimo_service_listar_abertos(postgres);
                 break;
             case 0:
-                printf("[INFO] Voltando ao menu principal.\n");
+                ui_info("Voltando ao menu principal.");
                 break;
             default:
-                printf("[ERRO] Opcao invalida.\n");
+                ui_error("Opcao invalida.");
                 break;
         }
 

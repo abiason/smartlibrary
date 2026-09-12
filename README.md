@@ -33,7 +33,7 @@ Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 d
 - relatorios operacionais;
 - testes automatizados integrados;
 - documentacao final de arquitetura, execucao, dados, fluxos e fases;
-- roteiro de apresentacao, checklist de avaliacao e matriz de evidencias de teste.
+- roteiro de apresentacao, roteiro de 5 minutos, checklist de avaliacao e matriz de evidencias de teste.
 
 ## Dependencias
 

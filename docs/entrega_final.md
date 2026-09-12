@@ -68,3 +68,7 @@ O sistema foi construido como aplicacao academica em terminal, com persistencia 
 A especificacao consolidada final esta em `docs/especificacao_v3.md`.
 
 A especificacao V4 esta em `docs/especificacao_v4.md` e compila melhorias recomendadas para uma versao posterior: auditoria com operador real, troca de senha, primeiro acesso mais claro, script de setup local e roteiro de demonstracao em 5 minutos. Os itens V4 de auditoria com operador real, troca de senha, primeiro acesso/recuperacao sem administrador ativo, setup local automatizado e roteiro de demonstracao em 5 minutos ja estao implementados e validados.
+
+## Fechamento V4
+
+A V4 foi concluida como camada final de polimento: todos os itens previstos foram implementados ou materializados em documentacao, com validacao por setup local, suite integrada e referencias atualizadas no README e guias do projeto.

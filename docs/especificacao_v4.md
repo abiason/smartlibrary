@@ -194,7 +194,7 @@ O projeto deve disponibilizar roteiro de demonstracao de ate 5 minutos para aval
 | 3 | Melhorar login e primeiro acesso | Implementada e testada |
 | 4 | Criar `scripts/setup_local.ps1` | Implementada e validada |
 | 5 | Criar `docs/roteiro_5_minutos.md` | Implementada |
-| 6 | Atualizar testes e documentos | Evidencia formal da V4 |
+| 6 | Atualizar testes e documentos | Concluida |
 
 ## 8. Criterios De Aceite Da V4
 
@@ -237,3 +237,7 @@ mingw32-make test
 A V3 representa a entrega premium ja concluida. A V4 organiza o ultimo conjunto de melhorias recomendado para tentar cravar nota maxima com mais tranquilidade: saber quem executou cada alteracao, oferecer troca de senha, reduzir atrito de setup e facilitar a apresentacao em tempo curto.
 
 A prioridade tecnica mais importante da V4 e a auditoria com operador real, pois conecta autenticacao, permissoes e rastreabilidade em uma evidencia unica e forte para avaliacao.
+
+## 11. Status Final Da V4
+
+Todos os itens planejados para a V4 foram implementados, documentados e validados. A versao final inclui auditoria com operador autenticado, troca de senha, primeiro acesso/recuperacao sem administrador ativo, setup local automatizado e roteiro de demonstracao em 5 minutos.

@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release, exemplo: v1.1.0"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -12,6 +18,8 @@ jobs:
   windows-msys2:
     name: Build Windows/MSYS2 binary
     runs-on: windows-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
 
     defaults:
       run:
@@ -20,6 +28,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - name: Setup MSYS2
         uses: msys2/setup-msys2@v2
@@ -41,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${RELEASE_TAG}"
           DIST_DIR="dist/smartlibrary-${VERSION}-windows-msys2"
           ZIP_PATH="dist/smartlibrary-${VERSION}-windows-msys2.zip"
 
@@ -63,11 +73,13 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: smartlibrary-${{ github.ref_name }}-windows-msys2
-          path: dist/smartlibrary-${{ github.ref_name }}-windows-msys2.zip
+          name: smartlibrary-${{ env.RELEASE_TAG }}-windows-msys2
+          path: dist/smartlibrary-${{ env.RELEASE_TAG }}-windows-msys2.zip
 
       - name: Publish GitHub Release asset
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/smartlibrary-${{ github.ref_name }}-windows-msys2.zip
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: dist/smartlibrary-${{ env.RELEASE_TAG }}-windows-msys2.zip
+          fail_on_unmatched_files: true
           generate_release_notes: true

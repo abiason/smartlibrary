@@ -2,6 +2,7 @@
 #define SMARTLIBRARY_CONSOLE_UI_H
 
 #include <stddef.h>
+#include <libpq-fe.h>
 
 #define UI_WIDTH 78
 
@@ -18,5 +19,6 @@ void ui_success(const char *message);
 void ui_error(const char *message);
 void ui_info(const char *message);
 void ui_warning(const char *message);
+void ui_print_pgresult_table(PGresult *result, const char *empty_message);
 
 #endif

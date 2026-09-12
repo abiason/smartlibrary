@@ -2,6 +2,7 @@
 
 #include "events/event_service.h"
 #include "repositories/cadastro_repository.h"
+#include "ui/console_ui.h"
 
 #include <libpq-fe.h>
 #include <ctype.h>
@@ -106,43 +107,6 @@ static int has_postgres(PostgresConnection *postgres) {
     return postgres != NULL && postgres->conn != NULL;
 }
 
-static void print_rows(PGresult *result) {
-    int rows;
-    int cols;
-
-    if (result == NULL) {
-        return;
-    }
-
-    rows = PQntuples(result);
-    cols = PQnfields(result);
-
-    if (rows == 0) {
-        printf("[INFO] Nenhum registro encontrado.\n");
-        PQclear(result);
-        return;
-    }
-
-    for (int col = 0; col < cols; col++) {
-        printf("%-24s", PQfname(result, col));
-    }
-    printf("\n");
-
-    for (int col = 0; col < cols; col++) {
-        printf("------------------------");
-    }
-    printf("\n");
-
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-            printf("%-24s", PQgetvalue(result, row, col));
-        }
-        printf("\n");
-    }
-
-    PQclear(result);
-}
-
 #define AUDIT_SNAPSHOT_SIZE 4096
 
 static void read_audit_snapshot(PostgresConnection *postgres, const char *entidade, int id, char *buffer, int buffer_size) {
@@ -178,13 +142,13 @@ int cadastro_service_criar_usuario(PostgresConnection *postgres, const Usuario *
 
 void cadastro_service_listar_usuarios(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(cadastro_repository_listar_usuarios(postgres->conn));
+        ui_print_pgresult_table(cadastro_repository_listar_usuarios(postgres->conn), "Nenhum registro encontrado.");
     }
 }
 
 void cadastro_service_buscar_usuarios(PostgresConnection *postgres, const char *termo) {
     if (has_postgres(postgres) && has_text(termo)) {
-        print_rows(cadastro_repository_buscar_usuarios(postgres->conn, termo));
+        ui_print_pgresult_table(cadastro_repository_buscar_usuarios(postgres->conn, termo), "Nenhum registro encontrado.");
     }
 }
 
@@ -240,13 +204,13 @@ int cadastro_service_criar_autor(PostgresConnection *postgres, const Autor *auto
 
 void cadastro_service_listar_autores(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(cadastro_repository_listar_autores(postgres->conn));
+        ui_print_pgresult_table(cadastro_repository_listar_autores(postgres->conn), "Nenhum registro encontrado.");
     }
 }
 
 void cadastro_service_buscar_autores(PostgresConnection *postgres, const char *termo) {
     if (has_postgres(postgres) && has_text(termo)) {
-        print_rows(cadastro_repository_buscar_autores(postgres->conn, termo));
+        ui_print_pgresult_table(cadastro_repository_buscar_autores(postgres->conn, termo), "Nenhum registro encontrado.");
     }
 }
 
@@ -297,13 +261,13 @@ int cadastro_service_criar_editora(PostgresConnection *postgres, const Editora *
 
 void cadastro_service_listar_editoras(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(cadastro_repository_listar_editoras(postgres->conn));
+        ui_print_pgresult_table(cadastro_repository_listar_editoras(postgres->conn), "Nenhum registro encontrado.");
     }
 }
 
 void cadastro_service_buscar_editoras(PostgresConnection *postgres, const char *termo) {
     if (has_postgres(postgres) && has_text(termo)) {
-        print_rows(cadastro_repository_buscar_editoras(postgres->conn, termo));
+        ui_print_pgresult_table(cadastro_repository_buscar_editoras(postgres->conn, termo), "Nenhum registro encontrado.");
     }
 }
 
@@ -354,13 +318,13 @@ int cadastro_service_criar_genero(PostgresConnection *postgres, const Genero *ge
 
 void cadastro_service_listar_generos(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(cadastro_repository_listar_generos(postgres->conn));
+        ui_print_pgresult_table(cadastro_repository_listar_generos(postgres->conn), "Nenhum registro encontrado.");
     }
 }
 
 void cadastro_service_buscar_generos(PostgresConnection *postgres, const char *termo) {
     if (has_postgres(postgres) && has_text(termo)) {
-        print_rows(cadastro_repository_buscar_generos(postgres->conn, termo));
+        ui_print_pgresult_table(cadastro_repository_buscar_generos(postgres->conn, termo), "Nenhum registro encontrado.");
     }
 }
 
@@ -411,13 +375,13 @@ int cadastro_service_criar_livro(PostgresConnection *postgres, const Livro *livr
 
 void cadastro_service_listar_livros(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(cadastro_repository_listar_livros(postgres->conn));
+        ui_print_pgresult_table(cadastro_repository_listar_livros(postgres->conn), "Nenhum registro encontrado.");
     }
 }
 
 void cadastro_service_buscar_livros(PostgresConnection *postgres, const char *termo) {
     if (has_postgres(postgres) && has_text(termo)) {
-        print_rows(cadastro_repository_buscar_livros(postgres->conn, termo));
+        ui_print_pgresult_table(cadastro_repository_buscar_livros(postgres->conn, termo), "Nenhum registro encontrado.");
     }
 }
 
@@ -539,13 +503,13 @@ int cadastro_service_criar_exemplar(PostgresConnection *postgres, const Exemplar
 
 void cadastro_service_listar_exemplares(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(cadastro_repository_listar_exemplares(postgres->conn));
+        ui_print_pgresult_table(cadastro_repository_listar_exemplares(postgres->conn), "Nenhum registro encontrado.");
     }
 }
 
 void cadastro_service_buscar_exemplares(PostgresConnection *postgres, const char *termo) {
     if (has_postgres(postgres) && has_text(termo)) {
-        print_rows(cadastro_repository_buscar_exemplares(postgres->conn, termo));
+        ui_print_pgresult_table(cadastro_repository_buscar_exemplares(postgres->conn, termo), "Nenhum registro encontrado.");
     }
 }
 

@@ -2,6 +2,7 @@
 
 #include "events/event_service.h"
 #include "repositories/emprestimo_repository.h"
+#include "ui/console_ui.h"
 
 #include <libpq-fe.h>
 #include <stdio.h>
@@ -12,41 +13,6 @@ static int has_text(const char *value) {
 
 static int has_postgres(PostgresConnection *postgres) {
     return postgres != NULL && postgres->conn != NULL;
-}
-
-static void print_rows(PGresult *result) {
-    int rows;
-    int cols;
-
-    if (result == NULL) {
-        return;
-    }
-
-    rows = PQntuples(result);
-    cols = PQnfields(result);
-    if (rows == 0) {
-        printf("[INFO] Nenhum emprestimo aberto encontrado.\n");
-        PQclear(result);
-        return;
-    }
-
-    for (int col = 0; col < cols; col++) {
-        printf("%-24s", PQfname(result, col));
-    }
-    printf("\n");
-    for (int col = 0; col < cols; col++) {
-        printf("------------------------");
-    }
-    printf("\n");
-
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-            printf("%-24s", PQgetvalue(result, row, col));
-        }
-        printf("\n");
-    }
-
-    PQclear(result);
 }
 
 int emprestimo_service_realizar_emprestimo_origem(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, const char *codigo_barras, const char *origem) {
@@ -145,7 +111,7 @@ int emprestimo_service_renovar_item(PostgresConnection *postgres, MongoConnectio
 
 void emprestimo_service_listar_abertos(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(emprestimo_repository_listar_emprestimos_abertos(postgres->conn));
+        ui_print_pgresult_table(emprestimo_repository_listar_emprestimos_abertos(postgres->conn), "Nenhum emprestimo aberto encontrado.");
     }
 }
 

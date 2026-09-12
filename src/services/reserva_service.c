@@ -2,46 +2,13 @@
 
 #include "events/event_service.h"
 #include "repositories/reserva_repository.h"
+#include "ui/console_ui.h"
 
 #include <libpq-fe.h>
 #include <stdio.h>
 
 static int has_postgres(PostgresConnection *postgres) {
     return postgres != NULL && postgres->conn != NULL;
-}
-
-static void print_rows(PGresult *result) {
-    int rows;
-    int cols;
-
-    if (result == NULL) {
-        return;
-    }
-
-    rows = PQntuples(result);
-    cols = PQnfields(result);
-    if (rows == 0) {
-        printf("[INFO] Nenhuma reserva encontrada.\n");
-        PQclear(result);
-        return;
-    }
-
-    for (int col = 0; col < cols; col++) {
-        printf("%-24s", PQfname(result, col));
-    }
-    printf("\n");
-    for (int col = 0; col < cols; col++) {
-        printf("------------------------");
-    }
-    printf("\n");
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-            printf("%-24s", PQgetvalue(result, row, col));
-        }
-        printf("\n");
-    }
-
-    PQclear(result);
 }
 
 int reserva_service_criar(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id, int livro_id) {
@@ -125,7 +92,7 @@ void reserva_service_expirar_vencidas(PostgresConnection *postgres, MongoConnect
 
 void reserva_service_listar(PostgresConnection *postgres) {
     if (has_postgres(postgres)) {
-        print_rows(reserva_repository_listar(postgres->conn));
+        ui_print_pgresult_table(reserva_repository_listar(postgres->conn), "Nenhuma reserva encontrada.");
     }
 }
 

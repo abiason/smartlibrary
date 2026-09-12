@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define TABLE_MIN_COL_WIDTH 8
+#define TABLE_MAX_COL_WIDTH 28
+
 static void print_padded_text(const char *text) {
     int length = text != NULL ? (int)strlen(text) : 0;
     int visible = length;
@@ -99,4 +102,95 @@ void ui_warning(const char *message) {
 
     snprintf(buffer, sizeof(buffer), "[WARN] %s", message != NULL ? message : "");
     ui_message("AVISO", buffer);
+}
+
+static int text_width(const char *text) {
+    int length = text != NULL ? (int)strlen(text) : 0;
+
+    if (length < TABLE_MIN_COL_WIDTH) {
+        return TABLE_MIN_COL_WIDTH;
+    }
+    if (length > TABLE_MAX_COL_WIDTH) {
+        return TABLE_MAX_COL_WIDTH;
+    }
+    return length;
+}
+
+static void print_table_separator(const int *widths, int cols) {
+    putchar('+');
+    for (int col = 0; col < cols; col++) {
+        for (int i = 0; i < widths[col] + 2; i++) {
+            putchar('-');
+        }
+        putchar('+');
+    }
+    putchar('\n');
+}
+
+static void print_table_cell(const char *text, int width) {
+    int length = text != NULL ? (int)strlen(text) : 0;
+    int visible = length;
+
+    if (visible > width) {
+        visible = width;
+    }
+
+    printf(" %-*.*s ", width, visible, text != NULL ? text : "");
+}
+
+static void print_table_row(PGresult *result, int row, const int *widths, int cols) {
+    putchar('|');
+    for (int col = 0; col < cols; col++) {
+        const char *value = row < 0 ? PQfname(result, col) : PQgetvalue(result, row, col);
+        print_table_cell(value, widths[col]);
+        putchar('|');
+    }
+    putchar('\n');
+}
+
+void ui_print_pgresult_table(PGresult *result, const char *empty_message) {
+    int rows;
+    int cols;
+    int widths[32];
+
+    if (result == NULL) {
+        return;
+    }
+
+    rows = PQntuples(result);
+    cols = PQnfields(result);
+
+    if (rows == 0) {
+        ui_info(empty_message != NULL ? empty_message : "Nenhum registro encontrado.");
+        PQclear(result);
+        return;
+    }
+
+    if (cols > (int)(sizeof(widths) / sizeof(widths[0]))) {
+        cols = (int)(sizeof(widths) / sizeof(widths[0]));
+    }
+
+    for (int col = 0; col < cols; col++) {
+        widths[col] = text_width(PQfname(result, col));
+    }
+
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < cols; col++) {
+            int width = text_width(PQgetvalue(result, row, col));
+            if (width > widths[col]) {
+                widths[col] = width;
+            }
+        }
+    }
+
+    putchar('\n');
+    print_table_separator(widths, cols);
+    print_table_row(result, -1, widths, cols);
+    print_table_separator(widths, cols);
+    for (int row = 0; row < rows; row++) {
+        print_table_row(result, row, widths, cols);
+    }
+    print_table_separator(widths, cols);
+
+    PQclear(result);
 }

@@ -110,6 +110,41 @@ int auth_service_criar_admin_inicial(PostgresConnection *postgres, const char *n
     PQclear(result);
     return ok;
 }
+
+int auth_service_trocar_senha(PostgresConnection *postgres, int usuario_id, const char *senha_atual, const char *nova_senha) {
+    char usuario_id_text[16];
+    const char *params[3];
+    PGresult *result;
+    int ok;
+
+    if (!has_postgres(postgres) || usuario_id <= 0 || !has_text(senha_atual) || !has_text(nova_senha)) {
+        return 0;
+    }
+
+    if (strlen(nova_senha) < 6) {
+        fprintf(stderr, "[ERRO] Nova senha deve ter pelo menos 6 caracteres.\n");
+        return 0;
+    }
+
+    snprintf(usuario_id_text, sizeof(usuario_id_text), "%d", usuario_id);
+    params[0] = usuario_id_text;
+    params[1] = senha_atual;
+    params[2] = nova_senha;
+
+    result = PQexecParams(postgres->conn,
+        "UPDATE usuario "
+        "SET senha_hash = crypt($3, gen_salt('bf')) "
+        "WHERE id_usuario = $1 AND senha_hash = crypt($2, senha_hash) AND ativo = true AND bloqueado = false",
+        3, NULL, params, NULL, NULL, 0);
+
+    ok = PQresultStatus(result) == PGRES_COMMAND_OK && atoi(PQcmdTuples(result)) == 1;
+    if (PQresultStatus(result) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "[ERRO] PostgreSQL: senha nao atualizada: %s", PQerrorMessage(postgres->conn));
+    }
+
+    PQclear(result);
+    return ok;
+}
 int auth_service_is_admin(const AuthSession *session) {
     return session != NULL && session->authenticated && strcmp(session->perfil_nome, "ADMINISTRADOR") == 0;
 }

@@ -37,7 +37,7 @@ Desenvolver um sistema academico de biblioteca em C17 com persistencia relaciona
 - Consultas NoSQL pela propria aplicacao.
 - Relatorios de acervo, atrasos, livros mais emprestados, origens de emprestimo, reservas ativas e usuarios com pendencias.
 - Testes integrados em bancos isolados.
-- Login obrigatorio, senhas com hash BCrypt e controle por perfil.
+- Login obrigatorio, senhas com hash BCrypt, troca de senha e controle por perfil.
 - Auditoria antes/depois real no MongoDB, incluindo o operador autenticado nas alteracoes administrativas.
 - Roteiro de apresentacao, checklist de avaliacao e matriz de evidencias.
 
@@ -66,4 +66,4 @@ O sistema foi construido como aplicacao academica em terminal, com persistencia 
 
 A especificacao consolidada final esta em `docs/especificacao_v3.md`.
 
-A especificacao V4 esta em `docs/especificacao_v4.md` e compila melhorias recomendadas para uma versao posterior: auditoria com operador real, troca de senha, primeiro acesso mais claro, script de setup local e roteiro de demonstracao em 5 minutos. A primeira melhoria da V4, auditoria com operador real, ja esta implementada e coberta pela suite integrada.
+A especificacao V4 esta em `docs/especificacao_v4.md` e compila melhorias recomendadas para uma versao posterior: auditoria com operador real, troca de senha, primeiro acesso mais claro, script de setup local e roteiro de demonstracao em 5 minutos. As melhorias V4 de auditoria com operador real e troca de senha ja estao implementadas e cobertas pela suite integrada.

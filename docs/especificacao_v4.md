@@ -190,7 +190,7 @@ O projeto deve disponibilizar roteiro de demonstracao de ate 5 minutos para aval
 | Ordem | Entrega | Impacto Esperado |
 | --- | --- | --- |
 | 1 | Propagar operador real para auditoria | Implementada e testada |
-| 2 | Criar troca de senha | Fechamento da seguranca operacional |
+| 2 | Criar troca de senha | Implementada e testada |
 | 3 | Melhorar login e primeiro acesso | Experiencia mais clara na demonstracao |
 | 4 | Criar `scripts/setup_local.ps1` | Preparacao local mais profissional |
 | 5 | Criar `docs/roteiro_5_minutos.md` | Apresentacao mais objetiva |

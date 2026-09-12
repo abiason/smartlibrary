@@ -20,6 +20,7 @@ Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 d
 - busca, alteracao, exclusao e desativacao segura de cadastros administrativos;
 - auditoria antes/depois real em documentos MongoDB para manutencao de cadastros, registrando o operador autenticado nas alteracoes administrativas;
 - login com senha armazenada por hash BCrypt via PostgreSQL pgcrypto;
+- troca de senha pelo usuario autenticado, com validacao da senha atual;
 - permissoes por perfil para administrador, bibliotecario e usuario;
 - validacao de CPF, e-mail, dados editoriais e bloqueios operacionais;
 - associacao de livros com autores e generos pela aplicacao;
@@ -106,7 +107,7 @@ $env:POSTGRES_PASSWORD='sua_senha'
 mingw32-make test
 ```
 
-O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois com operador autenticado, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL. A matriz detalhada esta em `docs/evidencias_testes.md`.
+O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois com operador autenticado, troca de senha, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL. A matriz detalhada esta em `docs/evidencias_testes.md`.
 
 ## Execucao
 

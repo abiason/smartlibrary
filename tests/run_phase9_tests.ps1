@@ -115,7 +115,7 @@ $env:POSTGRES_PORT = $PostgresPort
 $env:POSTGRES_DB = $TestDatabase
 $env:POSTGRES_USER = $PostgresUser
 $env:MONGODB_DATABASE = $MongoDatabase
-$inputData = "000.000.000-00`nadmin-fase13`n2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n1`n1`nUsuario CPF Invalido`n111.111.111-11`ninvalido@example.com`n11999992222`nteste123`n1`n1`n0`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n4`n6`n2`nF14-EX-002B`nRFID-F14-002B`n1`nTeste bloqueado`n6`n1`n1`n1`n6`n3`n1`n1`n3`n5`nAutor Teste Fase 14`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n0`n"
+$inputData = "000.000.000-00`nadmin-fase13`n2`n1`n1`nF9-EX-001`n2`nF9-EX-001`n0`n1`n1`n1`nUsuario CPF Invalido`n111.111.111-11`ninvalido@example.com`n11999992222`nteste123`n1`n1`n0`n3`n1`n900.000.000-01`n4`n1`n1`nUsuario Teste Fase 11`nfase11@example.com`n11999991111`n1`n1`n0`n5`n1`n1`n5`n5`n1`n4`n6`n2`nF14-EX-002B`nRFID-F14-002B`n1`nTeste bloqueado`n6`n1`n1`n1`n6`n3`n1`n1`n3`n5`nAutor Teste Fase 14`n0`n6`n1`n4`n3`n5`n0`n5`n1`n10`n0`n7`nadmin-fase13`nadmin-fase13-v2`nadmin-fase13-v2`n0`n"
 $output = $inputData | & $Binary
 if ($LASTEXITCODE -ne 0) {
     $output | Write-Host
@@ -135,6 +135,7 @@ Assert-True ($output -join "`n").Contains("Exemplar com emprestimo aberto nao po
 Assert-True ($output -join "`n").Contains("[OK] Autor vinculado ao livro.") "Vinculo livro/autor nao foi validado."
 Assert-True ($output -join "`n").Contains("[OK] Genero vinculado ao livro.") "Vinculo livro/genero nao foi validado."
 Assert-True ($output -join "`n").Contains("Autor Teste Fase 14") "Busca de livro por autor nao retornou resultado."
+Assert-True ($output -join "`n").Contains("[OK] Senha alterada com sucesso.") "Troca de senha nao confirmou sucesso."
 
 Write-Host "[TEST] Validando bloqueio por perfil..."
 $restrictedInput = "111.111.111-11`nbiblio-fase13`n1`n0`n"
@@ -172,6 +173,12 @@ Assert-True ([int]$genreLink -eq 1) "Vinculo livro/genero nao foi persistido."
 
 $blockedCopyCode = Invoke-PsqlScalar $TestDatabase "SELECT codigo_barras FROM exemplar WHERE id_exemplar = 2;"
 Assert-True ($blockedCopyCode -eq "F14-EX-002") "Exemplar emprestado nao deveria ter sido alterado manualmente."
+
+$newPasswordWorks = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM usuario WHERE id_usuario = 9000 AND senha_hash = crypt('admin-fase13-v2', senha_hash);"
+Assert-True ([int]$newPasswordWorks -eq 1) "Nova senha do administrador deveria autenticar."
+
+$oldPasswordWorks = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM usuario WHERE id_usuario = 9000 AND senha_hash = crypt('admin-fase13', senha_hash);"
+Assert-True ([int]$oldPasswordWorks -eq 0) "Senha antiga do administrador nao deveria mais autenticar."
 
 Write-Host "[TEST] Validando documentos MongoDB..."
 $eventCount = Invoke-MongoScalar "db.eventos.countDocuments({tipo:'EMPRESTIMO_REALIZADO', origem:'BALCAO'})"

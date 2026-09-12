@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows-msys2:
+    name: Build Windows/MSYS2 binary
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-make
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-postgresql
+            mingw-w64-ucrt-x86_64-mongo-c-driver
+            zip
+
+      - name: Build
+        run: mingw32-make all
+
+      - name: Package binary and runtime DLLs
+        run: |
+          set -euo pipefail
+
+          VERSION="${GITHUB_REF_NAME}"
+          DIST_DIR="dist/smartlibrary-${VERSION}-windows-msys2"
+          ZIP_PATH="dist/smartlibrary-${VERSION}-windows-msys2.zip"
+
+          mkdir -p "${DIST_DIR}"
+          cp build/smartlibrary.exe "${DIST_DIR}/"
+          cp README.md "${DIST_DIR}/"
+          cp .env.example "${DIST_DIR}/"
+          cp -r database docs scripts "${DIST_DIR}/"
+
+          ldd build/smartlibrary.exe \
+            | awk '/\/ucrt64\/bin\// { print $3 }' \
+            | sort -u \
+            | while read -r dll; do
+                cp "$dll" "${DIST_DIR}/"
+              done
+
+          (cd dist && zip -qr "$(basename "${ZIP_PATH}")" "$(basename "${DIST_DIR}")")
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: smartlibrary-${{ github.ref_name }}-windows-msys2
+          path: dist/smartlibrary-${{ github.ref_name }}-windows-msys2.zip
+
+      - name: Publish GitHub Release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/smartlibrary-${{ github.ref_name }}-windows-msys2.zip
+          generate_release_notes: true

@@ -102,6 +102,8 @@ $env:POSTGRES_PASSWORD='sua_senha'
 
 Fluxo simples para demonstracao:
 
+Para uma apresentacao curta, use `docs/roteiro_5_minutos.md`.
+
 1. Entre em `Cadastros administrativos` e crie usuario, editora, livro e exemplar.
 2. Entre em `Circulacao` e realize emprestimo/devolucao.
 3. Entre em `Reservas` e crie/cancele uma reserva.

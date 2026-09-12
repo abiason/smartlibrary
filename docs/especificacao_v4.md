@@ -193,7 +193,7 @@ O projeto deve disponibilizar roteiro de demonstracao de ate 5 minutos para aval
 | 2 | Criar troca de senha | Implementada e testada |
 | 3 | Melhorar login e primeiro acesso | Implementada e testada |
 | 4 | Criar `scripts/setup_local.ps1` | Implementada e validada |
-| 5 | Criar `docs/roteiro_5_minutos.md` | Apresentacao mais objetiva |
+| 5 | Criar `docs/roteiro_5_minutos.md` | Implementada |
 | 6 | Atualizar testes e documentos | Evidencia formal da V4 |
 
 ## 8. Criterios De Aceite Da V4

@@ -9,6 +9,7 @@ A Fase 15 consolida a cobertura automatizada em uma matriz de evidencias. O test
 | Build | Compilacao completa pelo Makefile com C17 e warnings habilitados |
 | Schema PostgreSQL | Recriacao do banco `smartlibrary_test` e aplicacao dos scripts SQL |
 | Setup local | Validacao do script `scripts/setup_local.ps1` para banco principal, MongoDB e build |
+| Roteiro 5 minutos | Documento `docs/roteiro_5_minutos.md` para demonstracao cronometrada |
 | MongoDB | Recriacao do banco `smartlibrary_test` e validacao de eventos, logs e auditoria |
 | Login, senha e primeiro acesso | Autenticacao com BCrypt, troca de senha e recuperacao quando nao ha administrador ativo |
 | Permissoes | Bloqueio de bibliotecario ao acessar cadastros administrativos |

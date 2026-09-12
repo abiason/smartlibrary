@@ -162,6 +162,7 @@ mingw32-make run
 - [Testes](docs/testes.md)
 - [Evidencias de testes](docs/evidencias_testes.md)
 - [Roteiro de apresentacao](docs/roteiro_apresentacao.md)
+- [Roteiro de demonstracao em 5 minutos](docs/roteiro_5_minutos.md)
 - [Checklist de avaliacao](docs/checklist_avaliacao.md)
 
 ## Estrutura
@@ -204,6 +205,7 @@ smartlibrary/
 |   |-- testes.md
 |   |-- evidencias_testes.md
 |   |-- roteiro_apresentacao.md
+|   |-- roteiro_5_minutos.md
 |   |-- checklist_avaliacao.md
 |   `-- diagrams/
 |-- .env.example

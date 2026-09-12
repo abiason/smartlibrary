@@ -15,6 +15,7 @@ Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 d
 - conexoes PostgreSQL/libpq e MongoDB/MongoDB C Driver;
 - schema relacional, constraints, indexes e seed inicial;
 - modelo documental MongoDB com validators e indexes;
+- setup local automatizado por `scripts/setup_local.ps1`;
 - structs das entidades principais;
 - menus administrativos para usuarios, autores, editoras, generos, livros e exemplares;
 - busca, alteracao, exclusao e desativacao segura de cadastros administrativos;
@@ -69,7 +70,16 @@ Nao versione senha real no repositorio. Defina `POSTGRES_PASSWORD` apenas no amb
 
 ## Banco De Dados
 
-Crie o banco PostgreSQL `smartlibrary` e aplique os scripts nesta ordem:
+Para preparar uma maquina local com um unico comando, defina a senha do PostgreSQL na sessao e execute:
+
+```powershell
+$env:POSTGRES_PASSWORD='sua_senha'
+PowerShell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
+```
+
+O script cria o banco PostgreSQL quando necessario, aplica validators/indexes MongoDB e compila o projeto. Para recriar o banco principal, use `-RecreateDatabase` com cuidado.
+
+Fluxo manual equivalente: crie o banco PostgreSQL `smartlibrary` e aplique os scripts nesta ordem:
 
 ```powershell
 $env:PGPASSWORD='sua_senha'
@@ -130,6 +140,7 @@ mingw32-make run
 - `4 - Self Checkout`
 - `5 - NoSQL: eventos, logs e auditoria`
 - `6 - Relatorios`
+- `7 - Trocar senha`
 
 ## Documentacao
 
@@ -173,6 +184,8 @@ smartlibrary/
 |   `-- mongodb/
 |-- tests/
 |   `-- run_phase9_tests.ps1
+|-- scripts/
+|   `-- setup_local.ps1
 |-- docs/
 |   |-- arquitetura.md
 |   |-- guia_execucao.md

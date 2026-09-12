@@ -35,7 +35,27 @@ $env:MONGODB_URI='mongodb://localhost:27017'
 $env:MONGODB_DATABASE='smartlibrary'
 ```
 
-## 3. Criar Banco PostgreSQL
+## 3. Setup Automatizado
+
+O caminho recomendado para uma maquina local nova e executar o script de setup:
+
+```powershell
+$env:POSTGRES_PASSWORD='sua_senha'
+PowerShell -ExecutionPolicy Bypass -File scripts/setup_local.ps1
+```
+
+O script valida `psql`, `mongosh`, `gcc`, `pkg-config` e `mingw32-make`, cria o banco PostgreSQL principal quando ele nao existe, aplica os scripts SQL em ambiente limpo, aplica validators/indexes MongoDB e compila o projeto.
+
+Se o banco principal ja existir com schema aplicado, os scripts SQL nao sao reaplicados. Para recriar o banco principal, use:
+
+```powershell
+$env:POSTGRES_PASSWORD='sua_senha'
+PowerShell -ExecutionPolicy Bypass -File scripts/setup_local.ps1 -RecreateDatabase
+```
+
+Use `-RecreateDatabase` apenas quando puder apagar o banco principal local.
+
+## 4. Criar Banco PostgreSQL Manualmente
 
 ```powershell
 $env:PGPASSWORD=$env:POSTGRES_PASSWORD
@@ -48,7 +68,7 @@ psql -U postgres -d smartlibrary -f database/postgresql/004_seed.sql
 
 Se o banco ja existir, aplique apenas os scripts ainda nao aplicados ou recrie o ambiente manualmente conforme a necessidade.
 
-## 4. Preparar MongoDB
+## 5. Preparar MongoDB
 
 ```powershell
 mongosh database/mongodb/validators.js
@@ -57,14 +77,14 @@ mongosh database/mongodb/indexes.js
 
 Esses scripts criam ou atualizam as colecoes `eventos`, `logs` e `auditoria`, alem dos indices usados pelas consultas.
 
-## 5. Compilar
+## 6. Compilar
 
 ```powershell
 mingw32-make clean
 mingw32-make
 ```
 
-## 6. Testar
+## 7. Testar
 
 ```powershell
 $env:POSTGRES_PASSWORD='sua_senha'
@@ -73,7 +93,7 @@ mingw32-make test
 
 A rotina de testes usa bancos isolados `smartlibrary_test`, sem depender do banco principal.
 
-## 7. Executar
+## 8. Executar
 
 ```powershell
 $env:POSTGRES_PASSWORD='sua_senha'
@@ -88,9 +108,10 @@ Fluxo simples para demonstracao:
 4. Entre em `Self Checkout` e identifique o usuario por CPF.
 5. Entre em `NoSQL` e consulte eventos, logs e auditoria.
 6. Entre em `Relatorios` e consulte acervo, origens e ranking.
-## 8. Primeiro Acesso E Perfis
 
-Ao iniciar a aplicacao, o sistema exige login. Se a tabela `usuario` estiver vazia, sera aberto um fluxo de primeiro acesso para criar o administrador inicial.
+## 9. Primeiro Acesso E Perfis
+
+Ao iniciar a aplicacao, o sistema exige login. Se a tabela `usuario` estiver vazia, sera aberto um fluxo de primeiro acesso para criar o administrador inicial. Se existirem usuarios, mas nenhum administrador ativo e desbloqueado, o mesmo fluxo orienta a criacao de um administrador de recuperacao.
 
 A senha do administrador inicial nao fica versionada no repositorio. Ela e informada localmente pelo operador e gravada no PostgreSQL com hash BCrypt via `pgcrypto`.
 

@@ -1,4 +1,5 @@
-db = db.getSiblingDB('smartlibrary');
+const databaseName = process.env.MONGODB_DATABASE || 'smartlibrary';
+db = db.getSiblingDB(databaseName);
 
 db.eventos.createIndex({ tipo: 1, dataHora: -1 });
 db.eventos.createIndex({ 'terminal.codigo': 1, dataHora: -1 });

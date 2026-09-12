@@ -1,4 +1,5 @@
-db = db.getSiblingDB('smartlibrary');
+const databaseName = process.env.MONGODB_DATABASE || 'smartlibrary';
+db = db.getSiblingDB(databaseName);
 
 function applyValidator(collectionName, schema) {
   if (db.getCollectionNames().includes(collectionName)) {

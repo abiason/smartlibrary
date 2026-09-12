@@ -54,6 +54,16 @@ void ui_prompt_label(const char *label) {
     printf("  %-14s: ", label != NULL ? label : "");
 }
 
+int ui_read_line(const char *label, char *buffer, size_t size) {
+    ui_prompt_label(label);
+    return input_read_line("", buffer, size);
+}
+
+int ui_read_int(const char *label, int *value) {
+    ui_prompt_label(label);
+    return input_read_int("", value);
+}
+
 static void ui_message(const char *type, const char *message) {
     putchar('\n');
     ui_line();

@@ -32,14 +32,10 @@ static int garantir_admin_ativo(PostgresConnection *postgres, MongoConnection *m
     } else {
         ui_warning("Nenhum administrador ativo encontrado. Crie um administrador de recuperacao.");
     }
-    ui_prompt_label("Nome");
-    input_read_line("", nome, sizeof(nome));
-    ui_prompt_label("CPF");
-    input_read_line("", cpf, sizeof(cpf));
-    ui_prompt_label("E-mail");
-    input_read_line("", email, sizeof(email));
-    ui_prompt_label("Senha");
-    input_read_line("", senha, sizeof(senha));
+    ui_read_line("Nome", nome, sizeof(nome));
+    ui_read_line("CPF", cpf, sizeof(cpf));
+    ui_read_line("E-mail", email, sizeof(email));
+    ui_read_line("Senha", senha, sizeof(senha));
 
     if (!auth_service_criar_admin_inicial(postgres, nome, cpf, email, senha)) {
         ui_error("Administrador inicial nao foi criado.");
@@ -64,10 +60,8 @@ static int autenticar_operador(PostgresConnection *postgres, MongoConnection *mo
         snprintf(contexto, sizeof(contexto), "Login - tentativa %d de 3", tentativa);
         ui_clear();
         ui_header("SMARTLIBRARY", contexto);
-        ui_prompt_label("CPF");
-        input_read_line("", cpf, sizeof(cpf));
-        ui_prompt_label("Senha");
-        input_read_line("", senha, sizeof(senha));
+        ui_read_line("CPF", cpf, sizeof(cpf));
+        ui_read_line("Senha", senha, sizeof(senha));
 
         if (auth_service_autenticar(postgres, cpf, senha, session)) {
             char mensagem[256];

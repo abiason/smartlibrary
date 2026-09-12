@@ -27,26 +27,26 @@ static void print_menu(const char *nome) {
 
 static void realizar_emprestimo(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id) {
     char codigo_barras[51];
-    input_read_line("Codigo de barras ou RFID: ", codigo_barras, sizeof(codigo_barras));
+    ui_read_line("Codigo/RFID", codigo_barras, sizeof(codigo_barras));
     self_checkout_service_realizar_emprestimo(postgres, mongo, usuario_id, codigo_barras);
 }
 
 static void realizar_devolucao(PostgresConnection *postgres, MongoConnection *mongo) {
     char codigo_barras[51];
-    input_read_line("Codigo de barras ou RFID: ", codigo_barras, sizeof(codigo_barras));
+    ui_read_line("Codigo/RFID", codigo_barras, sizeof(codigo_barras));
     self_checkout_service_realizar_devolucao(postgres, mongo, codigo_barras);
 }
 
 static void renovar_emprestimo(PostgresConnection *postgres, MongoConnection *mongo, int usuario_id) {
     int item_id = 0;
     self_checkout_service_listar_emprestimos(postgres, usuario_id);
-    input_read_int("ID do item de emprestimo: ", &item_id);
+    ui_read_int("ID item", &item_id);
     self_checkout_service_renovar_item(postgres, mongo, usuario_id, item_id);
 }
 
 static void pesquisar_livros(PostgresConnection *postgres) {
     char termo[151];
-    input_read_line("Titulo ou ISBN: ", termo, sizeof(termo));
+    ui_read_line("Titulo/ISBN", termo, sizeof(termo));
     self_checkout_service_pesquisar_livros(postgres, termo);
 }
 
@@ -59,7 +59,7 @@ void self_checkout_ui_run(PostgresConnection *postgres, MongoConnection *mongo) 
     ui_clear();
     print_header();
     event_service_registrar_origem(mongo, "SELF_CHECKOUT_INICIADO", "SELF_CHECKOUT", 0, 0, 0, "");
-    input_read_line("CPF: ", cpf, sizeof(cpf));
+    ui_read_line("CPF", cpf, sizeof(cpf));
 
     if (!self_checkout_service_identificar_usuario(postgres, mongo, cpf, &usuario_id, nome, sizeof(nome))) {
         event_service_registrar_origem(mongo, "SELF_CHECKOUT_FINALIZADO", "SELF_CHECKOUT", 0, 0, 0, "");

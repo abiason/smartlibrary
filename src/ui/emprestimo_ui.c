@@ -10,15 +10,15 @@ static void realizar_emprestimo(PostgresConnection *postgres, MongoConnection *m
     int usuario_id = 0;
     char codigo_barras[51];
 
-    input_read_int("ID do usuario: ", &usuario_id);
-    input_read_line("Codigo de barras do exemplar: ", codigo_barras, sizeof(codigo_barras));
+    ui_read_int("ID usuario", &usuario_id);
+    ui_read_line("Cod. barras", codigo_barras, sizeof(codigo_barras));
     emprestimo_service_realizar_emprestimo(postgres, mongo, usuario_id, codigo_barras);
 }
 
 static void realizar_devolucao(PostgresConnection *postgres, MongoConnection *mongo) {
     char codigo_barras[51];
 
-    input_read_line("Codigo de barras do exemplar: ", codigo_barras, sizeof(codigo_barras));
+    ui_read_line("Cod. barras", codigo_barras, sizeof(codigo_barras));
     emprestimo_service_realizar_devolucao(postgres, mongo, codigo_barras);
 }
 
@@ -26,7 +26,7 @@ static void renovar_emprestimo(PostgresConnection *postgres, MongoConnection *mo
     int emprestimo_item_id = 0;
 
     emprestimo_service_listar_abertos(postgres);
-    input_read_int("ID do item de emprestimo: ", &emprestimo_item_id);
+    ui_read_int("ID item", &emprestimo_item_id);
     emprestimo_service_renovar_item(postgres, mongo, emprestimo_item_id);
 }
 

@@ -8,7 +8,7 @@
 
 static int read_limit(void) {
     int limite = 10;
-    if (!input_read_int("Limite de linhas: ", &limite) || limite <= 0) {
+    if (!ui_read_int("Limite", &limite) || limite <= 0) {
         limite = 10;
     }
     return limite;

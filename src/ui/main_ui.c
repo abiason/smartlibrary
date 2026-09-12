@@ -59,12 +59,9 @@ static void trocar_senha(PostgresConnection *postgres, MongoConnection *mongo, c
     }
 
     ui_header("SMARTLIBRARY", "Trocar Senha");
-    ui_prompt_label("Senha atual");
-    input_read_line("", senha_atual, sizeof(senha_atual));
-    ui_prompt_label("Nova senha");
-    input_read_line("", nova_senha, sizeof(nova_senha));
-    ui_prompt_label("Confirmacao");
-    input_read_line("", confirmacao, sizeof(confirmacao));
+    ui_read_line("Senha atual", senha_atual, sizeof(senha_atual));
+    ui_read_line("Nova senha", nova_senha, sizeof(nova_senha));
+    ui_read_line("Confirmacao", confirmacao, sizeof(confirmacao));
 
     if (strcmp(nova_senha, confirmacao) != 0) {
         ui_error("Confirmacao diferente da nova senha.");

@@ -9,20 +9,20 @@
 static void criar_reserva(PostgresConnection *postgres, MongoConnection *mongo) {
     int usuario_id = 0;
     int livro_id = 0;
-    input_read_int("ID do usuario: ", &usuario_id);
-    input_read_int("ID do livro: ", &livro_id);
+    ui_read_int("ID usuario", &usuario_id);
+    ui_read_int("ID livro", &livro_id);
     reserva_service_criar(postgres, mongo, usuario_id, livro_id);
 }
 
 static void cancelar_reserva(PostgresConnection *postgres, MongoConnection *mongo) {
     int reserva_id = 0;
-    input_read_int("ID da reserva: ", &reserva_id);
+    ui_read_int("ID reserva", &reserva_id);
     reserva_service_cancelar(postgres, mongo, reserva_id);
 }
 
 static void atender_reserva(PostgresConnection *postgres, MongoConnection *mongo) {
     int reserva_id = 0;
-    input_read_int("ID da reserva: ", &reserva_id);
+    ui_read_int("ID reserva", &reserva_id);
     reserva_service_atender(postgres, mongo, reserva_id);
 }
 

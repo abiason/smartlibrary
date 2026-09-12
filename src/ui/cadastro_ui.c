@@ -30,7 +30,7 @@ static StatusExemplar read_status_exemplar(void) {
     ui_menu_item(4, "MANUTENCAO");
     ui_menu_item(5, "EXTRAVIADO");
     putchar('\n');
-    input_read_int("Status: ", &status);
+    ui_read_int("Status", &status);
 
     switch (status) {
         case 2: return EXEMPLAR_EMPRESTADO;
@@ -51,7 +51,7 @@ static int escolher_entidade(void) {
     ui_menu_item(5, "Livro");
     ui_menu_item(6, "Exemplar");
     putchar('\n');
-    input_read_int("Entidade: ", &entity);
+    ui_read_int("Entidade", &entity);
     return entity;
 }
 
@@ -60,14 +60,14 @@ static void criar_usuario(PostgresConnection *postgres) {
     int ativo = 1;
     int bloqueado = 0;
 
-    input_read_line("Nome: ", usuario.nome, sizeof(usuario.nome));
-    input_read_line("CPF: ", usuario.cpf, sizeof(usuario.cpf));
-    input_read_line("E-mail: ", usuario.email, sizeof(usuario.email));
-    input_read_line("Telefone: ", usuario.telefone, sizeof(usuario.telefone));
-    input_read_line("Senha: ", usuario.senha_hash, sizeof(usuario.senha_hash));
-    input_read_int("ID do perfil: ", &usuario.perfil_id);
-    input_read_int("Ativo? 1=sim 0=nao: ", &ativo);
-    input_read_int("Bloqueado? 1=sim 0=nao: ", &bloqueado);
+    ui_read_line("Nome", usuario.nome, sizeof(usuario.nome));
+    ui_read_line("CPF", usuario.cpf, sizeof(usuario.cpf));
+    ui_read_line("E-mail", usuario.email, sizeof(usuario.email));
+    ui_read_line("Telefone", usuario.telefone, sizeof(usuario.telefone));
+    ui_read_line("Senha", usuario.senha_hash, sizeof(usuario.senha_hash));
+    ui_read_int("ID do perfil", &usuario.perfil_id);
+    ui_read_int("Ativo 1/0", &ativo);
+    ui_read_int("Bloqueado 1/0", &bloqueado);
     usuario.ativo = ativo != 0;
     usuario.bloqueado = bloqueado != 0;
 
@@ -76,37 +76,37 @@ static void criar_usuario(PostgresConnection *postgres) {
 
 static void criar_autor(PostgresConnection *postgres) {
     Autor autor = {0};
-    input_read_line("Nome: ", autor.nome, sizeof(autor.nome));
-    input_read_line("Nacionalidade: ", autor.nacionalidade, sizeof(autor.nacionalidade));
+    ui_read_line("Nome", autor.nome, sizeof(autor.nome));
+    ui_read_line("Nacionalidade", autor.nacionalidade, sizeof(autor.nacionalidade));
     print_result(cadastro_service_criar_autor(postgres, &autor));
 }
 
 static void criar_editora(PostgresConnection *postgres) {
     Editora editora = {0};
-    input_read_line("Nome: ", editora.nome, sizeof(editora.nome));
-    input_read_line("Cidade: ", editora.cidade, sizeof(editora.cidade));
-    input_read_line("Pais: ", editora.pais, sizeof(editora.pais));
+    ui_read_line("Nome", editora.nome, sizeof(editora.nome));
+    ui_read_line("Cidade", editora.cidade, sizeof(editora.cidade));
+    ui_read_line("Pais", editora.pais, sizeof(editora.pais));
     print_result(cadastro_service_criar_editora(postgres, &editora));
 }
 
 static void criar_genero(PostgresConnection *postgres) {
     Genero genero = {0};
-    input_read_line("Nome: ", genero.nome, sizeof(genero.nome));
-    input_read_line("Descricao: ", genero.descricao, sizeof(genero.descricao));
+    ui_read_line("Nome", genero.nome, sizeof(genero.nome));
+    ui_read_line("Descricao", genero.descricao, sizeof(genero.descricao));
     print_result(cadastro_service_criar_genero(postgres, &genero));
 }
 
 static void criar_livro(PostgresConnection *postgres) {
     Livro livro = {0};
 
-    input_read_line("ISBN: ", livro.isbn, sizeof(livro.isbn));
-    input_read_line("Titulo: ", livro.titulo, sizeof(livro.titulo));
-    input_read_line("Subtitulo: ", livro.subtitulo, sizeof(livro.subtitulo));
-    input_read_int("Ano de publicacao (0 para vazio): ", &livro.ano_publicacao);
-    input_read_int("Edicao (0 para vazio): ", &livro.edicao);
-    input_read_int("ID da editora (0 para vazio): ", &livro.editora_id);
-    input_read_line("Idioma: ", livro.idioma, sizeof(livro.idioma));
-    input_read_line("Descricao: ", livro.descricao, sizeof(livro.descricao));
+    ui_read_line("ISBN", livro.isbn, sizeof(livro.isbn));
+    ui_read_line("Titulo", livro.titulo, sizeof(livro.titulo));
+    ui_read_line("Subtitulo", livro.subtitulo, sizeof(livro.subtitulo));
+    ui_read_int("Ano pub.", &livro.ano_publicacao);
+    ui_read_int("Edicao", &livro.edicao);
+    ui_read_int("ID editora", &livro.editora_id);
+    ui_read_line("Idioma", livro.idioma, sizeof(livro.idioma));
+    ui_read_line("Descricao", livro.descricao, sizeof(livro.descricao));
 
     print_result(cadastro_service_criar_livro(postgres, &livro));
 }
@@ -114,11 +114,11 @@ static void criar_livro(PostgresConnection *postgres) {
 static void criar_exemplar(PostgresConnection *postgres) {
     Exemplar exemplar = {0};
 
-    input_read_int("ID do livro: ", &exemplar.livro_id);
-    input_read_line("Codigo de barras: ", exemplar.codigo_barras, sizeof(exemplar.codigo_barras));
-    input_read_line("RFID: ", exemplar.rfid, sizeof(exemplar.rfid));
+    ui_read_int("ID do livro", &exemplar.livro_id);
+    ui_read_line("Cod. barras", exemplar.codigo_barras, sizeof(exemplar.codigo_barras));
+    ui_read_line("RFID", exemplar.rfid, sizeof(exemplar.rfid));
     exemplar.status = EXEMPLAR_DISPONIVEL;
-    input_read_line("Localizacao: ", exemplar.localizacao, sizeof(exemplar.localizacao));
+    ui_read_line("Localizacao", exemplar.localizacao, sizeof(exemplar.localizacao));
 
     print_result(cadastro_service_criar_exemplar(postgres, &exemplar));
 }
@@ -150,7 +150,7 @@ static void listar(PostgresConnection *postgres) {
 static void buscar(PostgresConnection *postgres) {
     char termo[201];
     int entity = escolher_entidade();
-    input_read_line("Termo de busca: ", termo, sizeof(termo));
+    ui_read_line("Termo", termo, sizeof(termo));
 
     switch (entity) {
         case 1: cadastro_service_buscar_usuarios(postgres, termo); break;
@@ -167,13 +167,13 @@ static void alterar_usuario(PostgresConnection *postgres, MongoConnection *mongo
     Usuario usuario = {0};
     int ativo = 1;
     int bloqueado = 0;
-    input_read_int("ID do usuario: ", &usuario.id);
-    input_read_line("Novo nome: ", usuario.nome, sizeof(usuario.nome));
-    input_read_line("Novo e-mail: ", usuario.email, sizeof(usuario.email));
-    input_read_line("Novo telefone: ", usuario.telefone, sizeof(usuario.telefone));
-    input_read_int("ID do perfil: ", &usuario.perfil_id);
-    input_read_int("Ativo? 1=sim 0=nao: ", &ativo);
-    input_read_int("Bloqueado? 1=sim 0=nao: ", &bloqueado);
+    ui_read_int("ID usuario", &usuario.id);
+    ui_read_line("Novo nome", usuario.nome, sizeof(usuario.nome));
+    ui_read_line("Novo e-mail", usuario.email, sizeof(usuario.email));
+    ui_read_line("Novo telefone", usuario.telefone, sizeof(usuario.telefone));
+    ui_read_int("ID perfil", &usuario.perfil_id);
+    ui_read_int("Ativo 1/0", &ativo);
+    ui_read_int("Bloqueado 1/0", &bloqueado);
     usuario.ativo = ativo != 0;
     usuario.bloqueado = bloqueado != 0;
     cadastro_service_atualizar_usuario(postgres, mongo, &usuario, operador_id);
@@ -181,50 +181,50 @@ static void alterar_usuario(PostgresConnection *postgres, MongoConnection *mongo
 
 static void alterar_autor(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Autor autor = {0};
-    input_read_int("ID do autor: ", &autor.id);
-    input_read_line("Novo nome: ", autor.nome, sizeof(autor.nome));
-    input_read_line("Nova nacionalidade: ", autor.nacionalidade, sizeof(autor.nacionalidade));
+    ui_read_int("ID autor", &autor.id);
+    ui_read_line("Novo nome", autor.nome, sizeof(autor.nome));
+    ui_read_line("Nacionalidade", autor.nacionalidade, sizeof(autor.nacionalidade));
     cadastro_service_atualizar_autor(postgres, mongo, &autor, operador_id);
 }
 
 static void alterar_editora(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Editora editora = {0};
-    input_read_int("ID da editora: ", &editora.id);
-    input_read_line("Novo nome: ", editora.nome, sizeof(editora.nome));
-    input_read_line("Nova cidade: ", editora.cidade, sizeof(editora.cidade));
-    input_read_line("Novo pais: ", editora.pais, sizeof(editora.pais));
+    ui_read_int("ID editora", &editora.id);
+    ui_read_line("Novo nome", editora.nome, sizeof(editora.nome));
+    ui_read_line("Nova cidade", editora.cidade, sizeof(editora.cidade));
+    ui_read_line("Novo pais", editora.pais, sizeof(editora.pais));
     cadastro_service_atualizar_editora(postgres, mongo, &editora, operador_id);
 }
 
 static void alterar_genero(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Genero genero = {0};
-    input_read_int("ID do genero: ", &genero.id);
-    input_read_line("Novo nome: ", genero.nome, sizeof(genero.nome));
-    input_read_line("Nova descricao: ", genero.descricao, sizeof(genero.descricao));
+    ui_read_int("ID genero", &genero.id);
+    ui_read_line("Novo nome", genero.nome, sizeof(genero.nome));
+    ui_read_line("Descricao", genero.descricao, sizeof(genero.descricao));
     cadastro_service_atualizar_genero(postgres, mongo, &genero, operador_id);
 }
 
 static void alterar_livro(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Livro livro = {0};
-    input_read_int("ID do livro: ", &livro.id);
-    input_read_line("Novo ISBN: ", livro.isbn, sizeof(livro.isbn));
-    input_read_line("Novo titulo: ", livro.titulo, sizeof(livro.titulo));
-    input_read_line("Novo subtitulo: ", livro.subtitulo, sizeof(livro.subtitulo));
-    input_read_int("Ano de publicacao (0 para vazio): ", &livro.ano_publicacao);
-    input_read_int("Edicao (0 para vazio): ", &livro.edicao);
-    input_read_int("ID da editora (0 para vazio): ", &livro.editora_id);
-    input_read_line("Idioma: ", livro.idioma, sizeof(livro.idioma));
-    input_read_line("Descricao: ", livro.descricao, sizeof(livro.descricao));
+    ui_read_int("ID livro", &livro.id);
+    ui_read_line("Novo ISBN", livro.isbn, sizeof(livro.isbn));
+    ui_read_line("Novo titulo", livro.titulo, sizeof(livro.titulo));
+    ui_read_line("Subtitulo", livro.subtitulo, sizeof(livro.subtitulo));
+    ui_read_int("Ano pub.", &livro.ano_publicacao);
+    ui_read_int("Edicao", &livro.edicao);
+    ui_read_int("ID editora", &livro.editora_id);
+    ui_read_line("Idioma", livro.idioma, sizeof(livro.idioma));
+    ui_read_line("Descricao", livro.descricao, sizeof(livro.descricao));
     cadastro_service_atualizar_livro(postgres, mongo, &livro, operador_id);
 }
 
 static void alterar_exemplar(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     Exemplar exemplar = {0};
-    input_read_int("ID do exemplar: ", &exemplar.id);
-    input_read_line("Novo codigo de barras: ", exemplar.codigo_barras, sizeof(exemplar.codigo_barras));
-    input_read_line("Novo RFID: ", exemplar.rfid, sizeof(exemplar.rfid));
+    ui_read_int("ID exemplar", &exemplar.id);
+    ui_read_line("Cod. barras", exemplar.codigo_barras, sizeof(exemplar.codigo_barras));
+    ui_read_line("Novo RFID", exemplar.rfid, sizeof(exemplar.rfid));
     exemplar.status = read_status_exemplar();
-    input_read_line("Nova localizacao: ", exemplar.localizacao, sizeof(exemplar.localizacao));
+    ui_read_line("Localizacao", exemplar.localizacao, sizeof(exemplar.localizacao));
     cadastro_service_atualizar_exemplar(postgres, mongo, &exemplar, operador_id);
 }
 
@@ -243,7 +243,7 @@ static void alterar(PostgresConnection *postgres, MongoConnection *mongo, int op
 static void excluir_ou_desativar(PostgresConnection *postgres, MongoConnection *mongo, int operador_id) {
     int id = 0;
     int entity = escolher_entidade();
-    input_read_int("ID para excluir/desativar: ", &id);
+    ui_read_int("ID alvo", &id);
 
     switch (entity) {
         case 1: cadastro_service_remover_ou_desativar_usuario(postgres, mongo, id, operador_id); break;
@@ -265,24 +265,24 @@ static void gerenciar_vinculos_livro(PostgresConnection *postgres, MongoConnecti
     printf("2 - Desvincular autor do livro\n");
     printf("3 - Vincular genero ao livro\n");
     printf("4 - Desvincular genero do livro\n");
-    input_read_int("Opcao: ", &option);
-    input_read_int("ID do livro: ", &livro_id);
+    ui_read_int("Opcao", &option);
+    ui_read_int("ID do livro", &livro_id);
 
     switch (option) {
         case 1:
-            input_read_int("ID do autor: ", &related_id);
+            ui_read_int("ID do autor", &related_id);
             cadastro_service_vincular_livro_autor(postgres, mongo, livro_id, related_id, operador_id);
             break;
         case 2:
-            input_read_int("ID do autor: ", &related_id);
+            ui_read_int("ID do autor", &related_id);
             cadastro_service_desvincular_livro_autor(postgres, mongo, livro_id, related_id, operador_id);
             break;
         case 3:
-            input_read_int("ID do genero: ", &related_id);
+            ui_read_int("ID do genero", &related_id);
             cadastro_service_vincular_livro_genero(postgres, mongo, livro_id, related_id, operador_id);
             break;
         case 4:
-            input_read_int("ID do genero: ", &related_id);
+            ui_read_int("ID do genero", &related_id);
             cadastro_service_desvincular_livro_genero(postgres, mongo, livro_id, related_id, operador_id);
             break;
         default:

@@ -208,4 +208,19 @@ Assert-True ([int]$logCount -ge 1) "Logs de sistema nao foram registrados."
 $authLogCount = Invoke-MongoScalar "db.logs.countDocuments({componente:'auth', mensagem:'Login realizado com sucesso.'})"
 Assert-True ([int]$authLogCount -ge 2) "Logs de autenticacao nao foram registrados."
 
+Write-Host "[TEST] Validando recuperacao sem administrador ativo..."
+Invoke-PsqlScalar $TestDatabase "UPDATE usuario SET ativo = false WHERE id_perfil = 3; SELECT COUNT(*) FROM usuario WHERE id_perfil = 3 AND ativo = true AND bloqueado = false;" | Out-Null
+$recoveryInput = "Administrador Recuperacao`n123.456.789-09`nrecuperacao@example.com`nrecupera123`n123.456.789-09`nrecupera123`n0`n"
+$recoveryOutput = $recoveryInput | & $Binary
+if ($LASTEXITCODE -ne 0) {
+    $recoveryOutput | Write-Host
+    throw "Aplicacao retornou codigo $LASTEXITCODE no fluxo de recuperacao de admin"
+}
+Assert-True ($recoveryOutput -join "`n").Contains("Nenhum administrador ativo encontrado") "Fluxo sem administrador ativo nao exibiu diagnostico claro."
+Assert-True ($recoveryOutput -join "`n").Contains("[OK] Administrador ativo criado") "Administrador de recuperacao nao foi criado."
+Assert-True ($recoveryOutput -join "`n").Contains("Login realizado: Administrador Recuperacao (ADMINISTRADOR).") "Administrador de recuperacao nao conseguiu autenticar."
+
+$activeAdminCount = Invoke-PsqlScalar $TestDatabase "SELECT COUNT(*) FROM usuario u INNER JOIN perfil p ON p.id_perfil = u.id_perfil WHERE p.nome = 'ADMINISTRADOR' AND u.ativo = true AND u.bloqueado = false;"
+Assert-True ([int]$activeAdminCount -eq 1) "Deveria existir exatamente um administrador ativo apos recuperacao, obtido $activeAdminCount."
+
 Write-Host "[TEST] OK: build, login/perfis, regras Fase 14, cadastros V2, fluxo, relatorios, PostgreSQL e MongoDB validados."

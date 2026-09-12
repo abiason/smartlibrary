@@ -8,18 +8,19 @@
 
 #include <stdio.h>
 
-static int criar_admin_inicial_se_necessario(PostgresConnection *postgres, MongoConnection *mongo) {
+static int garantir_admin_ativo(PostgresConnection *postgres, MongoConnection *mongo) {
     char nome[151];
     char cpf[15];
     char email[151];
     char senha[256];
     int total_usuarios = auth_service_contar_usuarios(postgres);
+    int total_admins_ativos = auth_service_contar_admins_ativos(postgres);
 
-    if (total_usuarios < 0) {
+    if (total_usuarios < 0 || total_admins_ativos < 0) {
         return 0;
     }
 
-    if (total_usuarios > 0) {
+    if (total_admins_ativos > 0) {
         return 1;
     }
 
@@ -27,7 +28,11 @@ static int criar_admin_inicial_se_necessario(PostgresConnection *postgres, Mongo
     printf("===================================\n");
     printf("SMART LIBRARY - PRIMEIRO ACESSO\n");
     printf("===================================\n");
-    printf("Nenhum usuario encontrado. Crie o administrador inicial.\n");
+    if (total_usuarios == 0) {
+        printf("Nenhum usuario encontrado. Crie o administrador inicial.\n");
+    } else {
+        printf("Nenhum administrador ativo encontrado. Crie um administrador de recuperacao para acessar o sistema.\n");
+    }
     input_read_line("Nome: ", nome, sizeof(nome));
     input_read_line("CPF: ", cpf, sizeof(cpf));
     input_read_line("E-mail: ", email, sizeof(email));
@@ -40,8 +45,8 @@ static int criar_admin_inicial_se_necessario(PostgresConnection *postgres, Mongo
         return 0;
     }
 
-    printf("[OK] Administrador inicial criado. Use essas credenciais para entrar.\n");
-    event_service_registrar_log(mongo, "INFO", "auth", "", "Administrador inicial criado.");
+    printf("[OK] Administrador ativo criado. Use essas credenciais para entrar.\n");
+    event_service_registrar_log(mongo, "INFO", "auth", "", "Administrador ativo criado no primeiro acesso ou recuperacao.");
     input_wait_enter();
     return 1;
 }
@@ -65,7 +70,7 @@ static int autenticar_operador(PostgresConnection *postgres, MongoConnection *mo
             return 1;
         }
 
-        printf("[ERRO] CPF ou senha invalidos, usuario inativo ou bloqueado.\n");
+        printf("[ERRO] Login recusado. Verifique CPF/senha ou confirme se o usuario esta ativo e desbloqueado.\n");
         event_service_registrar_log(mongo, "WARN", "auth", "", "Tentativa de login recusada.");
         input_wait_enter();
     }
@@ -113,7 +118,7 @@ int main(void) {
     printf("[INFO] Sistema inicializado com sucesso.\n");
     event_service_registrar_log(&mongo, "INFO", "main", "", "Sistema inicializado com sucesso.");
 
-    if (!criar_admin_inicial_se_necessario(&postgres, &mongo)) {
+    if (!garantir_admin_ativo(&postgres, &mongo)) {
         exit_code = 1;
         goto cleanup;
     }

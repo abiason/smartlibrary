@@ -9,7 +9,7 @@ A Fase 15 consolida a cobertura automatizada em uma matriz de evidencias. O test
 | Build | Compilacao completa pelo Makefile com C17 e warnings habilitados |
 | Schema PostgreSQL | Recriacao do banco `smartlibrary_test` e aplicacao dos scripts SQL |
 | MongoDB | Recriacao do banco `smartlibrary_test` e validacao de eventos, logs e auditoria |
-| Login e senha | Autenticacao de administrador com senha BCrypt e troca de senha validando senha antiga/nova |
+| Login, senha e primeiro acesso | Autenticacao com BCrypt, troca de senha e recuperacao quando nao ha administrador ativo |
 | Permissoes | Bloqueio de bibliotecario ao acessar cadastros administrativos |
 | Cadastros V2 | Busca, alteracao, desativacao e bloqueio de exclusao vinculada |
 | Regras Fase 14 | CPF invalido rejeitado, exemplar emprestado protegido e vinculos bibliograficos persistidos |

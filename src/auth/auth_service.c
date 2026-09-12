@@ -82,6 +82,29 @@ int auth_service_contar_usuarios(PostgresConnection *postgres) {
     return count;
 }
 
+int auth_service_contar_admins_ativos(PostgresConnection *postgres) {
+    PGresult *result;
+    int count = 0;
+
+    if (!has_postgres(postgres)) {
+        return -1;
+    }
+
+    result = PQexec(postgres->conn,
+        "SELECT COUNT(*) "
+        "FROM usuario u INNER JOIN perfil p ON p.id_perfil = u.id_perfil "
+        "WHERE p.nome = 'ADMINISTRADOR' AND u.ativo = true AND u.bloqueado = false");
+    if (PQresultStatus(result) != PGRES_TUPLES_OK) {
+        fprintf(stderr, "[ERRO] PostgreSQL: %s", PQerrorMessage(postgres->conn));
+        PQclear(result);
+        return -1;
+    }
+
+    count = atoi(PQgetvalue(result, 0, 0));
+    PQclear(result);
+    return count;
+}
+
 int auth_service_criar_admin_inicial(PostgresConnection *postgres, const char *nome, const char *cpf, const char *email, const char *senha) {
     const char *params[4];
     PGresult *result;

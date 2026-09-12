@@ -107,7 +107,7 @@ $env:POSTGRES_PASSWORD='sua_senha'
 mingw32-make test
 ```
 
-O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois com operador autenticado, troca de senha, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL. A matriz detalhada esta em `docs/evidencias_testes.md`.
+O alvo `test` recria bancos isolados chamados `smartlibrary_test` no PostgreSQL e no MongoDB, aplica fixtures controladas e valida build, login/perfis, regras Fase 14, cadastros V2, auditoria antes/depois com operador autenticado, troca de senha, recuperacao sem administrador ativo, fluxo de emprestimo/devolucao, relatorios e documentos NoSQL. A matriz detalhada esta em `docs/evidencias_testes.md`.
 
 ## Execucao
 

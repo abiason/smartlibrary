@@ -1,10 +1,10 @@
 # Entrega Final
 
-Este documento consolida a entrega completa do SmartLibrary conforme o plano incremental expandido para 15 fases.
+Este documento consolida a entrega completa do SmartLibrary conforme o plano incremental expandido para 20 fases, incluindo a V5 como ultima melhoria planejada.
 
 ## Objetivo
 
-Desenvolver um sistema academico de biblioteca em C17 com persistencia relacional em PostgreSQL, persistencia documental em MongoDB, interface em terminal, Self Checkout, relatorios e testes automatizados.
+Desenvolver um sistema academico de biblioteca em C17 com persistencia relacional em PostgreSQL, persistencia documental em MongoDB, interface em terminal polida, Self Checkout, relatorios e testes automatizados.
 
 ## Fases Entregues
 
@@ -25,6 +25,11 @@ Desenvolver um sistema academico de biblioteca em C17 com persistencia relaciona
 | 13 | Login, hash BCrypt e permissoes por perfil | Concluida |
 | 14 | Regras de negocio reforcadas e vinculos bibliograficos | Concluida |
 | 15 | Roteiro, checklist e evidencias finais de avaliacao | Concluida |
+| 16 | Base visual reutilizavel da interface console | Concluida |
+| 17 | Padronizacao dos menus da aplicacao | Concluida |
+| 18 | Padronizacao de formularios e mensagens | Concluida |
+| 19 | Melhoria de tabelas e listagens | Concluida |
+| 20 | Fechamento da V5 e documentacao final | Concluida |
 
 ## Funcionalidades Principais
 
@@ -41,6 +46,9 @@ Desenvolver um sistema academico de biblioteca em C17 com persistencia relaciona
 - Auditoria antes/depois real no MongoDB, incluindo o operador autenticado nas alteracoes administrativas.
 - Setup local automatizado para preparar PostgreSQL, MongoDB e build.
 - Roteiro de apresentacao, roteiro relampago de 5 minutos, checklist de avaliacao e matriz de evidencias.
+- Interface console V5 com cabecalhos, menus, prompts, mensagens e tabelas padronizadas.
+- Video de apresentacao V4 versionado no repositorio.
+- Diagrama resumido de arquitetura em Mermaid.
 
 ## Persistencia
 
@@ -61,7 +69,7 @@ Essa rotina recompila o projeto se necessario, recria bancos de teste, aplica mi
 
 ## Observacoes
 
-O sistema foi construido como aplicacao academica em terminal, com persistencia relacional/documental, seguranca por perfil, regras reforcadas, testes integrados e documentacao de avaliacao. A consolidacao final esta registrada em `docs/especificacao_v3.md`, refletindo o escopo implementado ate a Fase 15. A evolucao planejada para buscar nota maxima esta organizada em `docs/especificacao_v4.md`.
+O sistema foi construido como aplicacao academica em terminal, com persistencia relacional/documental, seguranca por perfil, regras reforcadas, testes integrados, documentacao de avaliacao e polimento final da interface console. A consolidacao funcional esta registrada em `docs/especificacao_v3.md`, a evolucao de qualidade em `docs/especificacao_v4.md` e a melhoria final de experiencia em `docs/especificacao_v5.md`.
 
 ## Especificacoes
 
@@ -69,6 +77,12 @@ A especificacao consolidada final esta em `docs/especificacao_v3.md`.
 
 A especificacao V4 esta em `docs/especificacao_v4.md` e compila melhorias recomendadas para uma versao posterior: auditoria com operador real, troca de senha, primeiro acesso mais claro, script de setup local e roteiro de demonstracao em 5 minutos. Os itens V4 de auditoria com operador real, troca de senha, primeiro acesso/recuperacao sem administrador ativo, setup local automatizado e roteiro de demonstracao em 5 minutos ja estao implementados e validados.
 
+Hoje, a especificacao V5 esta em `docs/especificacao_v5.md` e documenta a ultima melhoria planejada: polimento visual da interface console, com base reutilizavel, menus padronizados, formularios alinhados, mensagens consistentes e tabelas mais legiveis.
+
 ## Fechamento V4
 
 A V4 foi concluida como camada final de polimento: todos os itens previstos foram implementados ou materializados em documentacao, com validacao por setup local, suite integrada e referencias atualizadas no README e guias do projeto.
+
+## Fechamento V5
+
+A V5 encerra o ciclo de melhorias do SmartLibrary com foco na experiencia de uso no terminal. Foram adicionados helpers reutilizaveis em `src/ui/console_ui.c`, aplicados menus e formularios padronizados e centralizada a renderizacao de tabelas. A aplicacao continua 100% console e C17, mas com apresentacao mais consistente e profissional.

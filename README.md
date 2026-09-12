@@ -1,14 +1,14 @@
 # SmartLibrary
 
-Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com PostgreSQL e MongoDB.
+Sistema academico de biblioteca com Self Checkout, desenvolvido em C17 com PostgreSQL, MongoDB e interface console V5.
 
 ## Visao Geral
 
-O SmartLibrary organiza cadastros de biblioteca, circulacao de exemplares, reservas, autoatendimento, trilha NoSQL, relatorios e testes automatizados. O PostgreSQL e usado como fonte transacional principal e o MongoDB registra eventos, logs e auditoria.
+O SmartLibrary organiza cadastros de biblioteca, circulacao de exemplares, reservas, autoatendimento, trilha NoSQL, relatorios e testes automatizados. O PostgreSQL e usado como fonte transacional principal e o MongoDB registra eventos, logs e auditoria. A V5 adiciona polimento visual para menus, formularios, mensagens e tabelas no terminal.
 
 ## Escopo Entregue
 
-Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 de cadastros, auditoria profissional, seguranca por perfis, regras de negocio reforcadas e pacote final de avaliacao:
+Esta entrega implementa as Fases 1 a 20 da evolucao incremental, incluindo as melhorias V2, V3, V4 e a V5 como ultima melhoria planejada:
 
 - fundacao do projeto em C17;
 - configuracao por variaveis de ambiente;
@@ -31,9 +31,10 @@ Esta entrega implementa as Fases 1 a 10 da especificacao, mais as melhorias V2 d
 - eventos MongoDB por origem, logs operacionais e auditoria;
 - consultas NoSQL pela aplicacao;
 - relatorios operacionais;
+- interface console V5 com cabecalhos, menus, formularios, mensagens e tabelas padronizadas;
 - testes automatizados integrados;
 - documentacao final de arquitetura, execucao, dados, fluxos e fases;
-- roteiro de apresentacao, roteiro de 5 minutos, checklist de avaliacao e matriz de evidencias de teste.
+- roteiro de apresentacao, roteiro de 5 minutos, video de apresentacao, checklist de avaliacao e matriz de evidencias de teste.
 
 ## Dependencias
 
@@ -142,11 +143,23 @@ mingw32-make run
 - `6 - Relatorios`
 - `7 - Trocar senha`
 
+## Interface Console V5
+
+A interface foi polida mantendo a proposta console em C:
+
+- cabecalhos com moldura ASCII;
+- menus padronizados;
+- prompts de formulario alinhados;
+- mensagens visuais para sucesso, erro, aviso e informacao;
+- tabelas relacionais com bordas e colunas calculadas.
+
 ## Documentacao
 
 - [Arquitetura](docs/arquitetura.md)
 - [Guia de execucao](docs/guia_execucao.md)
 - [Entrega final](docs/entrega_final.md)
+- [Interface Console V5](docs/interface_console_v5.md)
+- [Especificacao V5 - interface console](docs/especificacao_v5.md)
 - [Especificacao V4 - evolucao planejada](docs/especificacao_v4.md)
 - [Especificacao V3](docs/especificacao_v3.md)
 - [Especificacao V2](docs/especificacao_v2.md)
@@ -191,6 +204,8 @@ smartlibrary/
 |   |-- arquitetura.md
 |   |-- guia_execucao.md
 |   |-- entrega_final.md
+|   |-- interface_console_v5.md
+|   |-- especificacao_v5.md
 |   |-- especificacao_v4.md
 |   |-- especificacao_v3.md
 |   |-- especificacao_v2.md

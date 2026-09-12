@@ -17,7 +17,12 @@
 | 13 | Seguranca E Perfis | Login, hash BCrypt via pgcrypto, primeiro acesso e permissoes por perfil |
 | 14 | Regras De Negocio | CPF/e-mail, busca avancada, vinculos livro-autor-genero e bloqueios operacionais |
 | 15 | Testes E Entrega Premium | Roteiro de apresentacao, checklist de avaliacao e evidencias de testes |
+| 16 | Base Visual Console | Modulo `console_ui` com cabecalhos, mensagens, prompts e apoio visual reutilizavel |
+| 17 | Menus Padronizados | Menus principais e secundarios com layout consistente |
+| 18 | Formularios E Mensagens | Prompts alinhados e feedback visual padronizado |
+| 19 | Tabelas E Listagens | Renderizacao centralizada de tabelas com bordas e colunas calculadas |
+| 20 | Fechamento V5 | Documentacao final e validacao geral da ultima melhoria |
 
 ## Estado Final
 
-O projeto fecha a sequencia incremental com codigo compilavel, scripts de banco, validacao automatizada, documentacao de apoio para execucao local e melhoria V2 para manutencao completa dos cadastros administrativos e auditoria profissional com rastreabilidade antes/depois e controle de acesso por perfil, regras de negocio reforcadas e pacote final de avaliacao.
+O projeto fecha a sequencia incremental com codigo compilavel, scripts de banco, validacao automatizada, documentacao de apoio para execucao local, manutencao completa dos cadastros administrativos, auditoria profissional com rastreabilidade antes/depois, controle de acesso por perfil, regras de negocio reforcadas, pacote final de avaliacao e interface console V5 com visual mais consistente.

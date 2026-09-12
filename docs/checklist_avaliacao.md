@@ -16,6 +16,7 @@ Este checklist organiza as evidencias de entrega do SmartLibrary para revisao ac
 | Reservas | Criacao, cancelamento, atendimento, expiracao e listagem | OK |
 | Self Checkout | Identificacao por CPF e operacoes por codigo/RFID | OK |
 | Relatorios | Acervo, atrasos, ranking, origem, reservas e pendencias | OK |
+| Interface console V5 | Menus, formularios, mensagens e tabelas padronizadas | OK |
 | Auditoria NoSQL | Eventos, logs e auditoria no MongoDB | OK |
 | Auditoria antes/depois | Snapshots reais em documentos MongoDB | OK |
 | Login | Autenticacao obrigatoria antes do menu | OK |
@@ -45,3 +46,4 @@ Resultado esperado ao final:
 - A senha de usuarios da aplicacao e armazenada com hash BCrypt.
 - Os testes usam bancos `smartlibrary_test`, sem alterar a base principal.
 - O primeiro administrador e criado por fluxo de primeiro acesso quando a tabela `usuario` esta vazia.
+- A V5 preserva a proposta de aplicacao console em C, mas melhora a organizacao visual das telas.

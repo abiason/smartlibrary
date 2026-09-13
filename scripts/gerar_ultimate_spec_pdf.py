@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 from datetime import date
 from xml.sax.saxutils import escape
 
@@ -137,6 +138,91 @@ class ArchitectureDiagram(Flowable):
         self.arrow(12.2 * cm, 3.38 * cm, 11.4 * cm, 2.65 * cm)
 
 
+class ERDiagram(Flowable):
+    def __init__(self):
+        super().__init__()
+        self.width = 16.5 * cm
+        self.height = 11.2 * cm
+
+    def draw_entity(self, x, y, w, h, name, fields, fill=colors.white):
+        c = self.canv
+        c.setFillColor(fill)
+        c.setStrokeColor(colors.HexColor("#D0D7DE"))
+        c.roundRect(x, y, w, h, 5, stroke=1, fill=1)
+        c.setFillColor(colors.HexColor("#0B1F33"))
+        c.setFont("Helvetica-Bold", 7.5)
+        c.drawCentredString(x + w / 2, y + h - 0.33 * cm, name)
+        c.setStrokeColor(colors.HexColor("#D0D7DE"))
+        c.line(x, y + h - 0.48 * cm, x + w, y + h - 0.48 * cm)
+        c.setFillColor(colors.HexColor("#24292F"))
+        c.setFont("Helvetica", 6.4)
+        for i, field in enumerate(fields[:4]):
+            c.drawString(x + 0.12 * cm, y + h - 0.78 * cm - i * 0.25 * cm, field)
+
+    def link(self, x1, y1, x2, y2, label):
+        c = self.canv
+        c.setStrokeColor(colors.HexColor("#57606A"))
+        c.setLineWidth(0.8)
+        c.line(x1, y1, x2, y2)
+        c.setFillColor(colors.HexColor("#59636E"))
+        c.setFont("Helvetica", 5.8)
+        c.drawCentredString((x1 + x2) / 2, (y1 + y2) / 2 + 0.08 * cm, label)
+
+    def draw(self):
+        c = self.canv
+        c.setFillColor(colors.HexColor("#F6F8FA"))
+        c.setStrokeColor(colors.HexColor("#D0D7DE"))
+        c.roundRect(0.1 * cm, 0.1 * cm, self.width, self.height, 8, stroke=1, fill=1)
+
+        boxes = {
+            "PERFIL": (0.5, 9.1, ["PK id_perfil", "nome", "descricao"]),
+            "USUARIO": (4.1, 9.1, ["PK id_usuario", "cpf UNIQUE", "senha_hash", "FK id_perfil"]),
+            "EMPRESTIMO": (8.0, 9.1, ["PK id_emprestimo", "FK id_usuario", "status", "origem"]),
+            "EMPRESTIMO_ITEM": (12.2, 9.1, ["PK id_item", "FK id_emprestimo", "FK id_exemplar", "data_devolucao"]),
+            "EDITORA": (0.5, 6.0, ["PK id_editora", "nome", "cidade", "pais"]),
+            "LIVRO": (4.1, 6.0, ["PK id_livro", "isbn UNIQUE", "titulo", "FK id_editora"]),
+            "EXEMPLAR": (8.0, 6.0, ["PK id_exemplar", "FK id_livro", "codigo_barras", "status"]),
+            "RESERVA": (12.2, 6.0, ["PK id_reserva", "FK id_usuario", "FK id_livro", "status"]),
+            "AUTOR": (1.5, 2.8, ["PK id_autor", "nome", "nacionalidade"]),
+            "LIVRO_AUTOR": (5.0, 2.8, ["PK/FK id_livro", "PK/FK id_autor"]),
+            "GENERO": (9.0, 2.8, ["PK id_genero", "nome UNIQUE", "descricao"]),
+            "LIVRO_GENERO": (12.5, 2.8, ["PK/FK id_livro", "PK/FK id_genero"]),
+            "CONFIGURACAO": (1.5, 0.6, ["PK id_configuracao", "chave UNIQUE", "valor"]),
+            "TERMINAL": (9.0, 0.6, ["PK id_terminal", "codigo UNIQUE", "ativo"]),
+        }
+        size = (3.0 * cm, 1.55 * cm)
+        pos = {}
+        for name, (x, y, fields) in boxes.items():
+            px, py = x * cm, y * cm
+            pos[name] = (px, py, size[0], size[1])
+
+        def center(name):
+            x, y, w, h = pos[name]
+            return x + w / 2, y + h / 2
+
+        links = [
+            ("PERFIL", "USUARIO", "1:N"),
+            ("USUARIO", "EMPRESTIMO", "1:N"),
+            ("EMPRESTIMO", "EMPRESTIMO_ITEM", "1:N"),
+            ("EDITORA", "LIVRO", "1:N"),
+            ("LIVRO", "EXEMPLAR", "1:N"),
+            ("EXEMPLAR", "EMPRESTIMO_ITEM", "1:N"),
+            ("USUARIO", "RESERVA", "1:N"),
+            ("LIVRO", "RESERVA", "1:N"),
+            ("LIVRO", "LIVRO_AUTOR", "1:N"),
+            ("AUTOR", "LIVRO_AUTOR", "1:N"),
+            ("LIVRO", "LIVRO_GENERO", "1:N"),
+            ("GENERO", "LIVRO_GENERO", "1:N"),
+        ]
+        for a, b, label in links:
+            x1, y1 = center(a)
+            x2, y2 = center(b)
+            self.link(x1, y1, x2, y2, label)
+
+        for name, (x, y, fields) in boxes.items():
+            self.draw_entity(x * cm, y * cm, size[0], size[1], name, fields)
+
+
 def styles():
     s = getSampleStyleSheet()
     s.add(ParagraphStyle(
@@ -244,7 +330,107 @@ def styles():
 S = styles()
 
 
+ACCENT_REPLACEMENTS = {
+    "Especificacao": "Especificação",
+    "especificacao": "especificação",
+    "Apresentacao": "Apresentação",
+    "apresentacao": "apresentação",
+    "Visao": "Visão",
+    "visao": "visão",
+    "Solucao": "Solução",
+    "solucao": "solução",
+    "Permissoes": "Permissões",
+    "permissoes": "permissões",
+    "Nao": "Não",
+    "nao": "não",
+    "Validacao": "Validação",
+    "validacao": "validação",
+    "Conclusao": "Conclusão",
+    "conclusao": "conclusão",
+    "Dicionario": "Dicionário",
+    "dicionario": "dicionário",
+    "Dados": "Dados",
+    "Relacional": "Relacional",
+    "Modelagem": "Modelagem",
+    "Negocio": "Negócio",
+    "negocio": "negócio",
+    "Funcionais": "Funcionais",
+    "funcionais": "funcionais",
+    "Configuracao": "Configuração",
+    "configuracao": "configuração",
+    "Informacoes": "Informações",
+    "informacoes": "informações",
+    "diagnosticas": "diagnósticas",
+    "operacoes": "operações",
+    "Operacoes": "Operações",
+    "transacoes": "transações",
+    "Transacoes": "Transações",
+    "circulacao": "circulação",
+    "Circulacao": "Circulação",
+    "emprestimo": "empréstimo",
+    "Emprestimo": "Empréstimo",
+    "emprestimos": "empréstimos",
+    "Emprestimos": "Empréstimos",
+    "devolucao": "devolução",
+    "Devolucao": "Devolução",
+    "devolucoes": "devoluções",
+    "Devolucoes": "Devoluções",
+    "renovacao": "renovação",
+    "Renovacao": "Renovação",
+    "usuario": "usuário",
+    "Usuario": "Usuário",
+    "usuarios": "usuários",
+    "Usuarios": "Usuários",
+    "relatorio": "relatório",
+    "Relatorio": "Relatório",
+    "relatorios": "relatórios",
+    "Relatorios": "Relatórios",
+    "seguranca": "segurança",
+    "Seguranca": "Segurança",
+    "decisoes": "decisões",
+    "Decisoes": "Decisões",
+    "alteracao": "alteração",
+    "Alteracao": "Alteração",
+    "alteracoes": "alterações",
+    "Alteracoes": "Alterações",
+    "criacao": "criação",
+    "Criacao": "Criação",
+    "execucao": "execução",
+    "Execucao": "Execução",
+    "manutencao": "manutenção",
+    "Manutencao": "Manutenção",
+    "codigo": "código",
+    "Codigo": "Código",
+    "bibliografico": "bibliográfico",
+    "bibliografica": "bibliográfica",
+    "operacional": "operacional",
+    "academico": "acadêmico",
+    "academica": "acadêmica",
+    "producao": "produção",
+    "propria": "própria",
+    "modulo": "módulo",
+    "Modulo": "Módulo",
+    "logica": "lógica",
+    "logicas": "lógicas",
+    "fisica": "física",
+    "Endereco": "Endereço",
+}
+
+
+def ptbr_text(text):
+    if not isinstance(text, str):
+        text = str(text)
+    # Preserve technical identifiers, paths, commands and controlled uppercase values.
+    if re.fullmatch(r"[a-z0-9_./*:-]+", text) or re.fullmatch(r"[A-Z0-9_./*:-]+", text):
+        return text
+    for src, dst in ACCENT_REPLACEMENTS.items():
+        text = re.sub(rf"\b{re.escape(src)}\b", dst, text)
+    return text
+
+
 def p(text, style="Body"):
+    if style != "DocCode":
+        text = ptbr_text(text)
     return Paragraph(text, S[style])
 
 
@@ -262,7 +448,10 @@ def table(data, widths=None, header=True):
         wrapped_row = []
         for cell in row:
             style_name = "TableHeader" if header and row_index == 0 else "TableCell"
-            text = escape(str(cell)).replace("\n", "<br/>")
+            text = str(cell)
+            if not ("src/" in text or "docs/" in text or ".md" in text or ".c" in text or "_" in text):
+                text = ptbr_text(text)
+            text = escape(text).replace("\n", "<br/>")
             wrapped_row.append(Paragraph(text, S[style_name]))
         wrapped.append(wrapped_row)
     t = Table(wrapped, colWidths=widths, repeatRows=1 if header else 0, hAlign="LEFT")
@@ -333,6 +522,7 @@ def story():
         "O aluno deve comparar cada decisao com seu proprio projeto: o que muda no dominio, no banco, nas regras, nos perfis e na interface.",
     ])
     st += [p("A experiencia de vibe coding funciona melhor quando o aluno assume o papel de dono do produto: ele pede, avalia, testa, corrige, documenta e publica. O Codex ajuda na velocidade, mas a responsabilidade de criterio continua humana.", "Body")]
+    st += [p("Critério editorial: o texto explicativo usa acentuação e caracteres latinos do PT-BR. Identificadores técnicos, nomes de tabelas, nomes de campos, arquivos, comandos e valores controlados permanecem sem acento para refletir exatamente o código e o banco de dados.", "Body")]
 
     st += section("2. Visao Geral Do Sistema")
     st += [p("O SmartLibrary e uma aplicacao console em C17 para gestao academica de biblioteca. O sistema controla usuarios, autores, editoras, generos, livros, exemplares, emprestimos, devolucoes, renovacoes, reservas, Self Checkout, relatorios e trilhas de observabilidade.", "Body")]
@@ -437,6 +627,9 @@ def story():
 
     st += section("9. Modelagem Relacional PostgreSQL")
     st += [p("O PostgreSQL e a fonte principal da verdade. Ele armazena dados mestres, relacoes bibliograficas, circulacao, reservas, terminais e configuracoes. Operacoes criticas usam transacoes e bloqueios para evitar inconsistencias.", "Body")]
+    st += subsection("Diagrama Entidade-Relacionamento")
+    st += [ERDiagram(), Spacer(1, 0.15 * cm)]
+    st += [p("O MER resume as entidades relacionais principais e seus vinculos. As tabelas associativas livro_autor e livro_genero materializam relacionamentos muitos-para-muitos sem duplicar dados bibliograficos.", "Body")]
     st.append(table([
         ["Entidade", "Finalidade", "Relacionamentos"],
         ["perfil", "Define permissoes logicas.", "1:N com usuario."],

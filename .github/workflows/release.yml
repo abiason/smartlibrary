@@ -45,7 +45,7 @@ jobs:
             zip
 
       - name: Build
-        run: mingw32-make all
+        run: mingw32-make OS=MSYS TARGET=build/smartlibrary.exe all
 
       - name: Package binary and runtime DLLs
         run: |
